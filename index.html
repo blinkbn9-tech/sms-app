@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Pro SMS App</title>
+    
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#007AFF">
+    
+    <link rel="manifest" href="manifest.json">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- In-App Notification Banner -->
+        <div class="notification-banner" id="notificationBanner">
+            <div class="notif-avatar bg-teal">N</div>
+            <div class="notif-content">
+                <div class="notif-title">New Sender</div>
+                <div class="notif-text">Hey! This is a newly...</div>
+            </div>
+        </div>
+
+        <!-- Main List View -->
+
+        <div class="header">
+            <div class="header-content">
+                <div class="header-title" id="viewTitle">Messages</div>
+                <div class="header-actions">
+                    <i class="fas fa-search search-icon" id="searchToggle"></i>
+                    <i class="fas fa-moon dark-mode-icon" id="darkModeToggle"></i>
+                </div>
+            </div>
+
+            <div class="search-bar" id="searchBar">
+                <input type="text" id="searchInput" placeholder="Search messages...">
+            </div>
+
+            <div class="unread-banner">
+                <div class="unread-text">
+                    <span class="unread-count" id="totalUnread">0</span> unread messages
+                </div>
+                <button class="view-button">View</button>
+            </div>
+        </div>
+
+        <!-- Messages List -->
+        <div class="messages-container" id="messagesList">
+            <!-- Rendered by JavaScript, but structure looks like this: -->
+            <!-- 
+                <div class="message-wrapper">
+                    <div class="delete-background">Delete</div>
+                    <div class="mark-read-background"><i class="fas fa-check"></i></div>
+                    <div class="message-item">...</div>
+                </div>
+                -->
+        </div>
+
+        <!-- Contacts List -->
+        <div class="contacts-container" id="contactsList"></div>
+
+        <!-- Floating Action Button (FAB) -->
+        <div class="fab" id="newMessageBtn">
+            <i class="fas fa-pen-to-square"></i>
+        </div>
+         <div class="install-fab" id="installBtn" style="display: none;">
+                <i class="fas fa-download"></i>
+            </div>
+
+        <!-- Bottom Navigation -->
+        <div class="bottom-nav">
+            <div class="nav-item active" data-view="messages">
+                <i class="fas fa-comment nav-icon"></i>
+                <span class="nav-label">Conversations</span>
+            </div>
+            <div class="nav-item" data-view="contacts">
+                <i class="fas fa-address-book nav-icon"></i>
+                <span class="nav-label">Contacts</span>
+            </div>
+            <div class="nav-badge" id="navBadge" style="display: none;">0</div>
+        </div>
+    </div>
+
+    <!-- Chat Detail View -->
+    <div class="chat-view" id="chatView">
+        <div class="chat-header">
+            <i class="fas fa-arrow-left back-btn" id="backBtn"></i>
+            <div class="chat-avatar" id="chatAvatar"></div>
+            <div class="chat-title" id="chatTitle"></div>
+        </div>
+        <div class="chat-body" id="chatBody"></div>
+        <div class="chat-input-area">
+            <i class="fas fa-plus"></i>
+            <input type="text" id="messageInput" placeholder="Text Message">
+            <i class="fas fa-paper-plane send-btn" id="sendBtn"></i>
+        </div>
+    </div>
+
+    <!-- Compose New Message Modal -->
+    <div class="modal-overlay" id="composeModal">
+        <div class="compose-sheet">
+            <div class="compose-header">
+                <span class="compose-cancel" id="composeCancel">Cancel</span>
+                <span class="compose-title">New Message</span>
+                <span class="compose-send" id="composeSend">Send</span>
+            </div>
+            <div class="compose-body">
+                <input type="text" id="composeSender" placeholder="Sender Name (e.g., MPESA)">
+                <textarea id="composeText" placeholder="Message content..."></textarea>
+            </div>
+        </div>
+    </div>
+
+    <!-- Long-Press Context Menu -->
+    <div class="context-menu-overlay" id="contextMenuOverlay">
+        <div class="context-menu" id="contextMenu">
+            <div class="context-item" id="ctxMarkRead">Mark as Read</div>
+            <div class="context-item" id="ctxPin">Pin to Top</div>
+            <div class="context-item danger" id="ctxDelete">Delete</div>
+            <div class="context-item cancel" id="ctxCancel">Cancel</div>
+        </div>
+    </div>
+    </div>
+    <!-- Added forward slashes / here -->
+    <!-- NO FORWARD SLASHES HERE -->
+        <script src="script.js"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(reg => console.log('SW Registered!'))
+                    .catch(err => console.error('SW Failed:', err));
+            });
+        }
+
+        // PWA Install Button Logic
+        let deferredPrompt;
+        const installBtn = document.getElementById('installBtn');
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            if(installBtn) installBtn.style.display = 'flex';
+        });
+        if(installBtn) {
+            installBtn.addEventListener('click', async () => {
+                if (deferredPrompt) {
+                    deferredPrompt.prompt();
+                    const { outcome } = await deferredPrompt.userChoice;
+                    installBtn.style.display = 'none';
+                    deferredPrompt = null;
+                }
+            });
+        }
+    </script>
+</body>
+</html>
