@@ -178,39 +178,39 @@ const ctxPin = document.getElementById('ctxPin');
 const ctxDelete = document.getElementById('ctxDelete');
 const ctxCancel = document.getElementById('ctxCancel');
 
-        function setupMessageInteractions() {
+                function setupMessageInteractions() {
             document.querySelectorAll('.message-wrapper').forEach(wrapper => {
                 const item = wrapper.querySelector('.message-item');
                 let startX = 0, currentX = 0, isDragging = false;
                 let pressTimer = null;
 
-                                // --- Long Press Logic (Instant Delete) ---
+                // --- Long Press Logic (Instant Delete) ---
                 const startPress = () => {
                     pressTimer = setTimeout(() => {
                         const id = parseInt(wrapper.dataset.id);
                         
-                        // Give a strong vibration to confirm deletion
+                        // Vibrate to confirm delete
                         if (navigator.vibrate) navigator.vibrate(30);
                         
-                        // Add a fade-out animation
+                        // Fade out animation
                         item.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
                         item.style.opacity = '0';
                         item.style.transform = 'translateX(-100%)';
                         
-                        // Delete from data after the animation finishes
+                        // Remove from data
                         setTimeout(() => {
                             messagesData = messagesData.filter(msg => msg.id !== id);
                             saveMessages();
                             renderMessages();
                         }, 300);
-                    }, 600); // 600ms hold for long press
+                    }, 600); // 600ms hold
                 };
 
                 const cancelPress = () => { clearTimeout(pressTimer); };
 
-                // --- Swipe Logic (Both Directions) ---
+                // --- Swipe Logic ---
                 const startDrag = (x) => {
-                    cancelPress();
+                    cancelPress(); // Cancel long press if they start dragging
                     startX = x; 
                     isDragging = true; 
                     item.style.transition = 'none';
@@ -219,13 +219,9 @@ const ctxCancel = document.getElementById('ctxCancel');
                 const drag = (x) => {
                     if (!isDragging) return;
                     currentX = x - startX;
-                    
-                    // Swipe Left (Negative values, limit to -100)
                     if (currentX < 0) {
                         item.style.transform = `translateX(${Math.max(currentX, -100)}px)`;
-                    } 
-                    // Swipe Right (Positive values, limit to 80)
-                    else if (currentX > 0) {
+                    } else if (currentX > 0) {
                         item.style.transform = `translateX(${Math.min(currentX, 80)}px)`;
                     }
                 };
@@ -236,7 +232,6 @@ const ctxCancel = document.getElementById('ctxCancel');
                     item.style.transition = 'transform 0.3s ease';
                     
                     if (currentX < -50) {
-                        // Action: Delete (Swipe Left)
                         item.style.transform = 'translateX(-100%)';
                         setTimeout(() => {
                             const id = parseInt(wrapper.dataset.id);
@@ -245,38 +240,26 @@ const ctxCancel = document.getElementById('ctxCancel');
                             renderMessages();
                         }, 300);
                     } else if (currentX > 40) {
-                        // Action: Mark Read/Unread (Swipe Right)
                         item.style.transform = 'translateX(0)';
                         const id = parseInt(wrapper.dataset.id);
                         const msg = messagesData.find(m => m.id === id);
-                        msg.unread = msg.unread > 0 ? 0 : 1; // Toggle
+                        msg.unread = msg.unread > 0 ? 0 : 1; 
                         saveMessages();
                         renderMessages();
                         if (navigator.vibrate) navigator.vibrate(10);
                     } else {
-                        // Snap back to center
                         item.style.transform = 'translateX(0)';
                     }
                     currentX = 0;
                 };
 
-                // Mouse Events (Desktop)
+                // Mouse Events
                 wrapper.addEventListener('mousedown', (e) => { startPress(); startDrag(e.clientX); });
                 wrapper.addEventListener('mousemove', (e) => drag(e.clientX));
                 wrapper.addEventListener('mouseup', endDrag);
                 wrapper.addEventListener('mouseleave', () => { cancelPress(); endDrag(); });
                 
-                // Right Click (Desktop)
-                wrapper.addEventListener('contextmenu', (e) => {
-                    e.preventDefault();
-                    contextMenuTargetId = parseInt(wrapper.dataset.id);
-                    const msg = messagesData.find(m => m.id === contextMenuTargetId);
-                    ctxMarkRead.textContent = msg.unread > 0 ? "Mark as Read" : "Mark as Unread";
-                    ctxPin.textContent = msg.pinned ? "Unpin from Top" : "Pin to Top";
-                    contextMenuOverlay.classList.add('active');
-                });
-
-                // Touch Events (Mobile)
+                // Touch Events
                 wrapper.addEventListener('touchstart', (e) => { startPress(); startDrag(e.touches[0].clientX); }, {passive: true});
                 wrapper.addEventListener('touchmove', (e) => drag(e.touches[0].clientX), {passive: true});
                 wrapper.addEventListener('touchend', endDrag);

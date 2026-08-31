@@ -1,4 +1,4 @@
-const CACHE_NAME = 'sms-final-v4';
+const CACHE_NAME = 'sms-final-v5';
 const urlsToCache = [
   './',
   './index.html',
@@ -24,6 +24,7 @@ self.addEventListener('activate', e => {
       Promise.all(keys.map(key => key !== CACHE_NAME && caches.delete(key)))
     )
   );
+  clients.claim();
 });
 
 self.addEventListener('fetch', e => {
