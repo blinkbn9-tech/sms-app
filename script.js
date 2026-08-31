@@ -1,11 +1,11 @@
 // 1. Default Data (Now includes chatHistory, phone, and pinned status)
 const defaultMessages = [
     { id: 1, name: "MPESA", phone: "+254 722 000 000", color: "bg-green", initial: "M", time: "9:30 AM", unread: 3, pinned: false, allowReply: false, history: [{ text: "You have received Ksh 1,500 from JOHN DOE. New balance is 3,450.", type: "received", time: "9:30 AM" }] },
-    { id: 2, name: "Safaricom", phone: "+254 720 000 000", color: "bg-blue", initial: "S", time: "8:45 AM", preview: "Your data balance is 2.5GB.", unread: 8, pinned: false, history: [{ text: "Your data balance is 2.5GB. Expires on 28/08/2026.", type: "received", time: "8:45 AM" }] },
-    { id: 3, name: "Voice Mail", phone: "+254 711 000 000", color: "bg-purple", initial: "V", time: "Yesterday", preview: "You have 8 new voice messages.", unread: 8, pinned: false, history: [{ text: "You have 8 new voice messages. Call 111 to listen.", type: "received", time: "Yesterday" }] },
-    { id: 4, name: "Airtel", phone: "+254 730 000 000", color: "bg-orange", initial: "A", time: "Yesterday", preview: "Your Airtel data balance is 1.2GB.", unread: 21, pinned: false, history: [{ text: "Your Airtel data balance is 1.2GB.", type: "received", time: "Yesterday" }] },
-    { id: 5, name: "AirtelAlert", phone: "+254 730 111 111", color: "bg-red", initial: "A", time: "2 days ago", preview: "Dear customer, your account balance is Ksh 45.", unread: 12, pinned: false, history: [{ text: "Dear customer, your account balance is Ksh 45.", type: "received", time: "2 days ago" }] },
-    { id: 6, name: "SAFARIOM", phone: "+254 700 000 000", color: "bg-grey", initial: "S", time: "3 days ago", preview: "Tuma Pesa: You have received Ksh 2,000.", unread: 0, pinned: false, history: [{ text: "Tuma Pesa: You have received Ksh 2,000.", type: "received", time: "3 days ago" }] }
+    { id: 2, name: "Safaricom", phone: "+254 720 000 000", color: "bg-blue", initial: "S", time: "8:45 AM", preview: "Your data balance is 2.5GB.", unread: 8, pinned: false, allowReply: false, history: [{ text: "Your data balance is 2.5GB. Expires on 28/08/2026.", type: "received", time: "8:45 AM" }] },
+    { id: 3, name: "Voice Mail", phone: "+254 711 000 000", color: "bg-purple", initial: "V", time: "Yesterday", preview: "You have 8 new voice messages.", unread: 8, pinned: false, allowReply: false, history: [{ text: "You have 8 new voice messages. Call 111 to listen.", type: "received", time: "Yesterday" }] },
+    { id: 4, name: "Airtel", phone: "+254 730 000 000", color: "bg-orange", initial: "A", time: "Yesterday", preview: "Your Airtel data balance is 1.2GB.", unread: 21, pinned: false, allowReply: false, history: [{ text: "Your Airtel data balance is 1.2GB.", type: "received", time: "Yesterday" }] },
+    { id: 5, name: "AirtelAlert", phone: "+254 730 111 111", color: "bg-red", initial: "A", time: "2 days ago", preview: "Dear customer, your account balance is Ksh 45.", unread: 12, pinned: false, allowReply: false, history: [{ text: "Dear customer, your account balance is Ksh 45.", type: "received", time: "2 days ago" }] },
+    { id: 6, name: "SAFARICOM", phone: "+254 700 000 000", color: "bg-grey", initial: "S", time: "3 days ago", preview: "Tuma Pesa: You have received Ksh 2,000.", unread: 0, pinned: false, allowReply: false, history: [{ text: "Tuma Pesa: You have received Ksh 2,000.", type: "received", time: "3 days ago" }] }
 ];
 
 // DOM Elements
@@ -321,13 +321,16 @@ composeSend.addEventListener('click', () => {
     const text = composeText.value.trim();
     if (!text) return;
 
+    // Get the phone's actual current time (e.g., "2:45 PM")
+    const currentTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
     let existingChat = messagesData.find(m => m.name.toLowerCase() === sender.toLowerCase());
     
     if (existingChat) {
         existingChat.unread = (existingChat.unread || 0) + 1;
         existingChat.preview = text;
-        existingChat.time = "Just now";
-        existingChat.history.push({ text, type: "received", time: "Just now" });
+        existingChat.time = currentTime; // Updated time
+        existingChat.history.push({ text, type: "received", time: currentTime }); // Updated time
         messagesData = messagesData.filter(m => m.id !== existingChat.id);
         messagesData.unshift(existingChat);
     } else {
@@ -339,12 +342,12 @@ composeSend.addEventListener('click', () => {
             phone: "+254 " + Math.floor(100000000 + Math.random() * 900000000),
             color: colors[Math.floor(Math.random() * colors.length)],
             initial: sender.charAt(0).toUpperCase(),
-            time: "Just now",
+            time: currentTime, // Updated time
             preview: text,
             unread: 1,
             pinned: false,
             allowReply: true,
-            history: [{ text, type: "received", time: "Just now" }]
+            history: [{ text, type: "received", time: currentTime }] // Updated time
         };
         messagesData.unshift(newMsg);
     }
