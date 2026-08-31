@@ -184,18 +184,26 @@ const ctxCancel = document.getElementById('ctxCancel');
                 let startX = 0, currentX = 0, isDragging = false;
                 let pressTimer = null;
 
-                // --- Long Press Logic ---
+                                // --- Long Press Logic (Instant Delete) ---
                 const startPress = () => {
                     pressTimer = setTimeout(() => {
-                        contextMenuTargetId = parseInt(wrapper.dataset.id);
-                        const msg = messagesData.find(m => m.id === contextMenuTargetId);
+                        const id = parseInt(wrapper.dataset.id);
                         
-                        ctxMarkRead.textContent = msg.unread > 0 ? "Mark as Read" : "Mark as Unread";
-                        ctxPin.textContent = msg.pinned ? "Unpin from Top" : "Pin to Top";
+                        // Give a strong vibration to confirm deletion
+                        if (navigator.vibrate) navigator.vibrate(30);
                         
-                        contextMenuOverlay.classList.add('active');
-                        if (navigator.vibrate) navigator.vibrate(10);
-                    }, 600);
+                        // Add a fade-out animation
+                        item.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+                        item.style.opacity = '0';
+                        item.style.transform = 'translateX(-100%)';
+                        
+                        // Delete from data after the animation finishes
+                        setTimeout(() => {
+                            messagesData = messagesData.filter(msg => msg.id !== id);
+                            saveMessages();
+                            renderMessages();
+                        }, 300);
+                    }, 600); // 600ms hold for long press
                 };
 
                 const cancelPress = () => { clearTimeout(pressTimer); };

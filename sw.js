@@ -1,4 +1,4 @@
-const CACHE_NAME = 'sms-final-v3';
+const CACHE_NAME = 'sms-final-v4';
 const urlsToCache = [
   './',
   './index.html',
