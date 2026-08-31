@@ -111,7 +111,7 @@ function playNotificationSound() {
                         <div class="mark-read-background"><i class="fas fa-check"></i></div>
                         <div class="message-item">
                             <div class="avatar ${msg.color}">${msg.initial}</div>
-                            <div class="message-content" onclick="openChat(${msg.id})">
+                            <div class="message-content">
                                 <div class="message-header">
                                     <div class="sender-name">
                                         ${msg.pinned ? '<i class="fas fa-thumbtack pin-icon"></i>' : ''}
@@ -178,15 +178,20 @@ const ctxPin = document.getElementById('ctxPin');
 const ctxDelete = document.getElementById('ctxDelete');
 const ctxCancel = document.getElementById('ctxCancel');
 
-                function setupMessageInteractions() {
+                       function setupMessageInteractions() {
             document.querySelectorAll('.message-wrapper').forEach(wrapper => {
                 const item = wrapper.querySelector('.message-item');
                 let startX = 0, currentX = 0, isDragging = false;
                 let pressTimer = null;
+                let hasLongPressed = false;
+                let hasMoved = false;
 
                 // --- Long Press Logic (Instant Delete) ---
                 const startPress = () => {
+                    hasLongPressed = false;
+                    hasMoved = false;
                     pressTimer = setTimeout(() => {
+                        hasLongPressed = true;
                         const id = parseInt(wrapper.dataset.id);
                         
                         // Vibrate to confirm delete
@@ -203,14 +208,14 @@ const ctxCancel = document.getElementById('ctxCancel');
                             saveMessages();
                             renderMessages();
                         }, 300);
-                    }, 600); // 600ms hold
+                    }, 500); // 500ms hold
                 };
 
                 const cancelPress = () => { clearTimeout(pressTimer); };
 
                 // --- Swipe Logic ---
                 const startDrag = (x) => {
-                    cancelPress(); // Cancel long press if they start dragging
+                    cancelPress(); 
                     startX = x; 
                     isDragging = true; 
                     item.style.transition = 'none';
@@ -219,6 +224,7 @@ const ctxCancel = document.getElementById('ctxCancel');
                 const drag = (x) => {
                     if (!isDragging) return;
                     currentX = x - startX;
+                    if (Math.abs(currentX) > 5) hasMoved = true; // Flag that a drag happened
                     if (currentX < 0) {
                         item.style.transform = `translateX(${Math.max(currentX, -100)}px)`;
                     } else if (currentX > 0) {
@@ -253,19 +259,33 @@ const ctxCancel = document.getElementById('ctxCancel');
                     currentX = 0;
                 };
 
-                // Mouse Events
-                wrapper.addEventListener('mousedown', (e) => { startPress(); startDrag(e.clientX); });
-                wrapper.addEventListener('mousemove', (e) => drag(e.clientX));
-                wrapper.addEventListener('mouseup', endDrag);
-                wrapper.addEventListener('mouseleave', () => { cancelPress(); endDrag(); });
+                // --- Click Logic (Open Chat) ---
+                // Only open chat if they didn't swipe or long-press
+                item.addEventListener('click', (e) => {
+                    if (hasLongPressed || hasMoved) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        return;
+                    }
+                    const id = parseInt(wrapper.dataset.id);
+                    openChat(id);
+                });
+
+                // Mouse Events (Desktop)
+                item.addEventListener('mousedown', (e) => { startPress(); startDrag(e.clientX); });
+                item.addEventListener('mousemove', (e) => drag(e.clientX));
+                item.addEventListener('mouseup', endDrag);
+                item.addEventListener('mouseleave', () => { cancelPress(); endDrag(); });
                 
-                // Touch Events
-                wrapper.addEventListener('touchstart', (e) => { startPress(); startDrag(e.touches[0].clientX); }, {passive: true});
-                wrapper.addEventListener('touchmove', (e) => drag(e.touches[0].clientX), {passive: true});
-                wrapper.addEventListener('touchend', endDrag);
+                // CRUCIAL: Prevent Android's native long-press text selection menu
+                item.addEventListener('contextmenu', (e) => e.preventDefault());
+
+                // Touch Events (Mobile)
+                item.addEventListener('touchstart', (e) => { startPress(); startDrag(e.touches[0].clientX); }, {passive: true});
+                item.addEventListener('touchmove', (e) => drag(e.touches[0].clientX), {passive: true});
+                item.addEventListener('touchend', endDrag);
             });
         }
-
 // Context Menu Actions
 ctxCancel.addEventListener('click', () => contextMenuOverlay.classList.remove('active'));
 contextMenuOverlay.addEventListener('click', (e) => {
