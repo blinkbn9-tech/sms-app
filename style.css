@@ -106,10 +106,6 @@ body.contacts-active .header-content { margin-bottom: 0; }
 .chat-avatar { width: 35px; height: 35px; border-radius: 50%; background: #ccc; margin-right: 10px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; }
 .chat-title { font-weight: 600; font-size: 17px; color: var(--text-primary); }
 .delete-btn { margin-left: auto; color: var(--danger); font-size: 18px; cursor: pointer; transition: transform 0.2s; }
-.read-btn { margin-left: auto; color: var(--accent); font-size: 18px; cursor: pointer; transition: transform 0.2s; }
-.more-btn { margin-left: auto; color: var(--text-secondary); font-size: 18px; cursor: pointer; transition: transform 0.2s; }
-.search-btn { margin-left: auto; color: var(--accent); font-size: 18px; cursor: pointer; transition: transform 0.2s; }
-.pin-btn { margin-left: auto; color: var(--accent); font-size: 18px; cursor: pointer; transition: transform 0.2s; }
 .chat-body { flex: 1; padding: 20px; display: flex; flex-direction: column; gap: 10px; overflow-y: auto; -webkit-overflow-scrolling: touch; background: var(--bg-secondary); }
 .chat-bubble { max-width: 75%; padding: 10px 15px; border-radius: 20px; font-size: 15px; line-height: 1.4; position: relative; animation: popIn 0.3s ease-out; color: var(--text-primary); word-wrap: break-word; }
 @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
