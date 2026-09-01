@@ -502,18 +502,38 @@ document.getElementById('backBtn').addEventListener('click', () => {
     renderContacts();
 });
 
-// NEW: Delete Conversation from inside the chat
-document.getElementById('deleteChatBtn').addEventListener('click', () => {
+// Delete Conversation from inside the chat
+function deleteCurrentChat() {
     if (activeChatId === null) return;
     
-    // Android native confirmation dialog
-    const confirmDelete = confirm("Delete this entire conversation?");
-    if (confirmDelete) {
-        messagesData = messagesData.filter(msg => msg.id !== activeChatId);
-        saveMessages();
-        chatView.classList.remove('active'); // Close the chat view
-        activeChatId = null;
-        renderMessages(); // Re-render the main list
-        renderContacts(); // Re-render contacts
-    }
-});
+    // Show our custom context menu overlay instead of the blocked Android confirm()
+    contextMenuOverlay.classList.add('active');
+    document.getElementById('contextMenu').innerHTML = `
+        <div class="context-item danger" onclick="confirmDeleteChat()">Delete Conversation</div>
+        <div class="context-item cancel" onclick="cancelDeleteChat()">Cancel</div>
+    `;
+}
+
+function cancelDeleteChat() {
+    contextMenuOverlay.classList.remove('active');
+    // Restore the original context menu HTML
+    document.getElementById('contextMenu').innerHTML = `
+        <div class="context-item" id="ctxMarkRead">Mark as Read</div>
+        <div class="context-item" id="ctxPin">Pin to Top</div>
+        <div class="context-item danger" id="ctxDelete">Delete</div>
+        <div class="context-item cancel" id="ctxCancel">Cancel</div>
+    `;
+    // Re-attach the old listeners
+    document.getElementById('ctxCancel').addEventListener('click', () => contextMenuOverlay.classList.remove('active'));
+}
+
+function confirmDeleteChat() {
+    contextMenuOverlay.classList.remove('active');
+    messagesData = messagesData.filter(msg => msg.id !== activeChatId);
+    saveMessages();
+    chatView.classList.remove('active'); 
+    activeChatId = null;
+    renderMessages(); 
+    renderContacts();
+    if (navigator.vibrate) navigator.vibrate(20);
+}
