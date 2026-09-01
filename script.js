@@ -178,7 +178,7 @@ const ctxPin = document.getElementById('ctxPin');
 const ctxDelete = document.getElementById('ctxDelete');
 const ctxCancel = document.getElementById('ctxCancel');
 
-                       function setupMessageInteractions() {
+            function setupMessageInteractions() {
             document.querySelectorAll('.message-wrapper').forEach(wrapper => {
                 const item = wrapper.querySelector('.message-item');
                 let startX = 0, currentX = 0, isDragging = false;
@@ -221,10 +221,14 @@ const ctxCancel = document.getElementById('ctxCancel');
                     item.style.transition = 'none';
                 };
 
-                const drag = (x) => {
+                               const drag = (x, y) => {
                     if (!isDragging) return;
                     currentX = x - startX;
-                    if (Math.abs(currentX) > 5) hasMoved = true; // Flag that a drag happened
+                    const diffY = Math.abs(y - startY);
+                    if (Math.abs(currentX) > 15 || diffY > 15) {
+                        hasMoved = true;
+                        cancelPress();
+                    }
                     if (currentX < 0) {
                         item.style.transform = `translateX(${Math.max(currentX, -100)}px)`;
                     } else if (currentX > 0) {

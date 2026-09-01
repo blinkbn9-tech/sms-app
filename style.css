@@ -43,8 +43,8 @@ body { background-color: var(--bg-secondary); color: var(--text-primary); max-wi
 .view-button { background: var(--accent); color: white; border: none; padding: 6px 15px; border-radius: 15px; font-size: 13px; cursor: pointer; transition: transform 0.2s; }
 .view-button:hover { transform: scale(1.05); }
 
-.messages-container { flex: 1; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; background: var(--bg-primary); }
-.contacts-container { flex: 1; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; background: var(--bg-primary); display: none; }
+.messages-container { flex: 1; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; background: var(--bg-primary); padding-bottom:80px;}
+.contacts-container { flex: 1; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; background: var(--bg-primary); display: none; padding-bottom:80px; display: none;}
 
 body.contacts-active .messages-container { display: none; }
 body.contacts-active .fab { display: none; }
@@ -68,6 +68,7 @@ body.contacts-active .header-content { margin-bottom: 0; }
     display: flex; padding: 15px 20px; cursor: pointer; transition: transform 0.2s; background: var(--bg-primary); position: relative; z-index: 2; 
     -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;
     -webkit-touch-callout: none !important;
+    -webkit-tap-highlight-color: transparent;
     touch-action: pan-y;
 }
 .message-item:hover { background-color: var(--bg-secondary); }
