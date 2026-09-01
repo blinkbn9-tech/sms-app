@@ -45,7 +45,7 @@
                     <div class="unread-text">
                         <span class="unread-count" id="totalUnread">0</span> unread messages
                     </div>
-                    <button class="view-button">View</button>
+                    <button class="view-button" id="viewUnreadBtn">View</button>
                 </div>
             </div>
 
@@ -117,7 +117,19 @@
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('sw.js')
-                    .then(reg => console.log('SW Registered!'))
+                    .then(reg => {
+                        console.log('SW Registered!');
+                        // Listen for updates
+                        reg.addEventListener('updatefound', () => {
+                            const newWorker = reg.installing;
+                            newWorker.addEventListener('statechange', () => {
+                                // When the new SW is installed, force the page to reload!
+                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                    window.location.reload();
+                                }
+                            });
+                        });
+                    })
                     .catch(err => console.error('SW Failed:', err));
             });
         }
