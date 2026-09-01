@@ -225,74 +225,104 @@ const ctxPin = document.getElementById('ctxPin');
 const ctxDelete = document.getElementById('ctxDelete');
 const ctxCancel = document.getElementById('ctxCancel');
 
-function setupMessageInteractions() {
-    document.querySelectorAll('.message-wrapper').forEach(wrapper => {
-        const item = wrapper.querySelector('.message-item');
-        let startX = 0, startY = 0, currentX = 0, isDragging = false;
-        let pressTimer = null, hasLongPressed = false, hasMoved = false;
+        function setupMessageInteractions() {
+            document.querySelectorAll('.message-wrapper').forEach(wrapper => {
+                const item = wrapper.querySelector('.message-item');
+                let startX = 0, startY = 0, currentX = 0, isDragging = false;
+                let pressTimer = null, hasLongPressed = false, hasMoved = false;
 
-        const startPress = () => {
-            hasLongPressed = false; hasMoved = false;
-            pressTimer = setTimeout(() => {
-                hasLongPressed = true;
-                const id = parseInt(wrapper.dataset.id);
-                if (navigator.vibrate) navigator.vibrate(30);
-                item.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
-                item.style.opacity = '0';
-                item.style.transform = 'translateX(-100%)';
-                setTimeout(() => {
-                    messagesData = messagesData.filter(msg => msg.id !== id);
-                    saveMessages(); renderMessages();
-                }, 300);
-            }, 500);
-        };
-        const cancelPress = () => { clearTimeout(pressTimer); };
-        const startDrag = (x, y) => { cancelPress(); startX = x; startY = y; isDragging = true; item.style.transition = 'none'; };
-        const drag = (x, y) => {
-            if (!isDragging) return;
-            currentX = x - startX;
-            const diffY = Math.abs(y - startY);
-            if (Math.abs(currentX) > 15 || diffY > 15) { hasMoved = true; cancelPress(); }
-            if (currentX < 0) item.style.transform = `translateX(${Math.max(currentX, -100)}px)`;
-            else if (currentX > 0) item.style.transform = `translateX(${Math.min(currentX, 80)}px)`;
-        };
-        const endDrag = () => {
-            if (!isDragging) return;
-            isDragging = false;
-            item.style.transition = 'transform 0.3s ease';
-            if (currentX < -50) {
-                item.style.transform = 'translateX(-100%)';
-                setTimeout(() => {
+                const startInteraction = (x, y) => {
+                    hasLongPressed = false; 
+                    hasMoved = false;
+                    startX = x; startY = y;
+                    isDragging = true; 
+                    item.style.transition = 'none';
+                    
+                    // Start Long Press Timer (500ms)
+                    pressTimer = setTimeout(() => {
+                        hasLongPressed = true;
+                        isDragging = false; // Stop dragging once long-pressed
+                        const id = parseInt(wrapper.dataset.id);
+                        if (navigator.vibrate) navigator.vibrate(30);
+                        item.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+                        item.style.opacity = '0';
+                        item.style.transform = 'translateX(-100%)';
+                        setTimeout(() => {
+                            messagesData = messagesData.filter(msg => msg.id !== id);
+                            saveMessages(); renderMessages();
+                        }, 300);
+                    }, 500);
+                };
+
+                const handleMove = (x, y) => {
+                    if (!isDragging) return;
+                    currentX = x - startX;
+                    const diffY = Math.abs(y - startY);
+                    
+                    // If finger moves more than 15px, cancel the long-press
+                    if (Math.abs(currentX) > 15 || diffY > 15) { 
+                        if (!hasLongPressed) {
+                            clearTimeout(pressTimer);
+                            hasMoved = true;
+                        }
+                    }
+                    
+                    // Handle Swipe Left/Right visual
+                    if (currentX < 0) {
+                        item.style.transform = `translateX(${Math.max(currentX, -100)}px)`;
+                    } else if (currentX > 0) {
+                        item.style.transform = `translateX(${Math.min(currentX, 80)}px)`;
+                    }
+                };
+
+                const endInteraction = () => {
+                    if (!isDragging) return;
+                    isDragging = false;
+                    clearTimeout(pressTimer);
+                    item.style.transition = 'transform 0.3s ease';
+                    
+                    if (currentX < -50) { // Swipe Left Delete
+                        item.style.transform = 'translateX(-100%)';
+                        setTimeout(() => {
+                            const id = parseInt(wrapper.dataset.id);
+                            messagesData = messagesData.filter(msg => msg.id !== id);
+                            saveMessages(); renderMessages();
+                        }, 300);
+                    } else if (currentX > 40) { // Swipe Right Mark Read
+                        item.style.transform = 'translateX(0)';
+                        const id = parseInt(wrapper.dataset.id);
+                        const msg = messagesData.find(m => m.id === id);
+                        msg.unread = msg.unread > 0 ? 0 : 1; 
+                        saveMessages(); renderMessages();
+                        if (navigator.vibrate) navigator.vibrate(10);
+                    } else {
+                        item.style.transform = 'translateX(0)';
+                    }
+                    currentX = 0;
+                };
+
+                // Click for opening chat
+                item.addEventListener('click', (e) => {
+                    if (hasLongPressed || hasMoved) { e.preventDefault(); e.stopPropagation(); return; }
                     const id = parseInt(wrapper.dataset.id);
-                    messagesData = messagesData.filter(msg => msg.id !== id);
-                    saveMessages(); renderMessages();
-                }, 300);
-            } else if (currentX > 40) {
-                item.style.transform = 'translateX(0)';
-                const id = parseInt(wrapper.dataset.id);
-                const msg = messagesData.find(m => m.id === id);
-                msg.unread = msg.unread > 0 ? 0 : 1; 
-                saveMessages(); renderMessages();
-                if (navigator.vibrate) navigator.vibrate(10);
-            } else { item.style.transform = 'translateX(0)'; }
-            currentX = 0;
-        };
+                    openChat(id);
+                });
 
-        item.addEventListener('click', (e) => {
-            if (hasLongPressed || hasMoved) { e.preventDefault(); e.stopPropagation(); return; }
-            const id = parseInt(wrapper.dataset.id);
-            openChat(id);
-        });
-        item.addEventListener('contextmenu', (e) => e.preventDefault());
-        item.addEventListener('mousedown', (e) => { startPress(); startDrag(e.clientX, e.clientY); });
-        item.addEventListener('mousemove', (e) => drag(e.clientX, e.clientY));
-        item.addEventListener('mouseup', endDrag);
-        item.addEventListener('mouseleave', () => { cancelPress(); endDrag(); });
-        item.addEventListener('touchstart', (e) => { startPress(); startDrag(e.touches[0].clientX, e.touches[0].clientY); }, {passive: true});
-        item.addEventListener('touchmove', (e) => drag(e.touches[0].clientX, e.touches[0].clientY), {passive: true});
-        item.addEventListener('touchend', endDrag);
-    });
-}
+                // Prevent Android native context menu
+                item.addEventListener('contextmenu', (e) => e.preventDefault());
+
+                // Mouse Events
+                item.addEventListener('mousedown', (e) => startInteraction(e.clientX, e.clientY));
+                item.addEventListener('mousemove', (e) => handleMove(e.clientX, e.clientY));
+                item.addEventListener('mouseup', endInteraction);
+                item.addEventListener('mouseleave', () => { if(isDragging) endInteraction(); });
+
+                // Touch Events
+                item.addEventListener('touchstart', (e) => startInteraction(e.touches[0].clientX, e.touches[0].clientY), {passive: true});
+                item.addEventListener('touchmove', (e) => handleMove(e.touches[0].clientX, e.touches[0].clientY), {passive: true});
+                item.addEventListener('touchend', endInteraction);
+            });
+        }
 
 ctxCancel.addEventListener('click', () => contextMenuOverlay.classList.remove('active'));
 contextMenuOverlay.addEventListener('click', (e) => { if(e.target === contextMenuOverlay) contextMenuOverlay.classList.remove('active'); });
@@ -463,3 +493,80 @@ document.querySelectorAll('.nav-item').forEach(item => {
 // Initial Render
 renderMessages();
 renderContacts();
+
+// 10. Handle closing the chat view
+document.getElementById('backBtn').addEventListener('click', () => {
+    chatView.classList.remove('active');
+    activeChatId = null;
+    renderMessages(); 
+    renderContacts();
+});
+
+// NEW: Delete Conversation from inside the chat
+document.getElementById('deleteChatBtn').addEventListener('click', () => {
+    if (activeChatId === null) return;
+    
+    // Android native confirmation dialog
+    const confirmDelete = confirm("Delete this entire conversation?");
+    if (confirmDelete) {
+        messagesData = messagesData.filter(msg => msg.id !== activeChatId);
+        saveMessages();
+        chatView.classList.remove('active'); // Close the chat view
+        activeChatId = null;
+        renderMessages(); // Re-render the main list
+        renderContacts(); // Re-render contacts
+    }
+});
+
+document.getElementById('pinChatBtn').addEventListener('click', () => {
+    if (activeChatId === null) return;
+    const message = messagesData.find(m => m.id === activeChatId);
+
+    message.pinned = !message.pinned;
+    saveMessages();
+    renderMessages(); // Re-render the main list
+    renderContacts(); // Re-render contacts
+    alert(message.pinned ? "Conversation pinned." : "Conversation unpinned.");
+});
+
+document.getElementById('markReadChatBtn').addEventListener('click', () => {
+    if (activeChatId === null) return;
+    const message = messagesData.find(m => m.id === activeChatId);
+
+    message.unread = message.unread > 0 ? 0 : 1; 
+    saveMessages();
+    renderMessages(); 
+    renderContacts();
+    alert(message.unread === 0 ? "Conversation marked as read." : "Conversation marked as unread.");
+});
+
+document.getElementById('moreChatOptionsBtn').addEventListener('click', () => { 
+    if (activeChatId === null) return;
+    const message = messagesData.find(m => m.id === activeChatId);
+    contextMenuTargetId = message.id;
+
+    contextMenuOverlay.classList.add('active');
+
+    ctxMarkRead.textContent = message.unread > 0 ? "Mark as Read" : "Mark as Unread";
+    ctxPin.textContent = message.pinned ? "Unpin Conversation" : "Pin Conversation";
+});
+
+document.getElementById('searchChatBtn').addEventListener('click', () => {
+    if (activeChatId === null) return;
+    const message = messagesData.find(m => m.id === activeChatId);
+    const searchTerm = prompt("Search in this conversation:");
+    if (searchTerm) {
+        const results = message.history.filter(msg => msg.text.toLowerCase().includes(searchTerm.toLowerCase()));
+        if (results.length > 0) {
+            chatBody.innerHTML = `<div class="chat-date-divider">Search Results</div>`;
+            results.forEach(msg => {
+                const bubble = document.createElement('div');
+                bubble.className = `chat-bubble ${msg.type}`;
+                bubble.innerHTML = `${msg.text}<div class="chat-meta"><span>${msg.time}</span>${msg.type === 'sent' ? '<i class="fas fa-check-double read-receipt"></i>' : ''}</div>`;
+                chatBody.appendChild(bubble);
+            });} else {
+            chatBody.innerHTML = `<div class="chat-bubble received" style="background: transparent; color: var(--text-secondary); align-self: center; box-shadow: none; border: none;">No messages found containing "${searchTerm}".</div>`;
+        }
+        chatBody.scrollTop = chatBody.scrollHeight;
+    }
+});
