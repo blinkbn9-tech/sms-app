@@ -30,12 +30,9 @@
                     <div class="header-title" id="viewTitle">Messages</div>
                     <div class="header-actions">
                         <i class="fas fa-search search-icon" id="searchToggle"></i>
-                        <!-- NEW: Three Dots Menu -->
                         <i class="fas fa-ellipsis-vertical menu-icon" id="menuToggle"></i>
                     </div>
-                    
-                    <!-- NEW: Dropdown Menu -->
-                   <div class="menu-dropdown" id="menuDropdown">
+                    <div class="menu-dropdown" id="menuDropdown">
                         <div class="menu-item" id="menuSelect"><i class="fas fa-check-circle"></i> Select Messages</div>
                         <div class="menu-item" id="menuMarkAllRead"><i class="fas fa-envelope-open"></i> Mark all as read</div>
                         <div class="menu-item" id="menuStarred"><i class="fas fa-star"></i> Starred messages</div>
@@ -67,7 +64,6 @@
                 <i class="fas fa-download"></i>
             </div>
 
-            <!-- NEW: Selection Action Bar (Hidden by default) -->
             <div class="selection-bar" id="selectionBar" style="display: none;">
                 <span id="selectedCount">0 selected</span>
                 <button class="select-all-btn" id="selectAllBtn">All</button>
@@ -88,12 +84,27 @@
             </div>
         </div>
 
+        <!-- Chat View -->
         <div class="chat-view" id="chatView">
             <div class="chat-header">
                 <i class="fas fa-arrow-left back-btn" id="backBtn"></i>
                 <div class="chat-avatar" id="chatAvatar"></div>
                 <div class="chat-title" id="chatTitle"></div>
                 <i class="fas fa-trash delete-chat-btn" onclick="deleteCurrentChat()"></i>
+                        <div class="modal-overlay" id="composeModal">
+            <div class="compose-sheet">
+                <div class="compose-header">
+                    <!-- Add onclick="closeComposeModal()" here -->
+                    <span class="compose-cancel" id="composeCancel" onclick="closeComposeModal()">Cancel</span>
+                    <span class="compose-title">New Message</span>
+                    <span class="compose-send" id="composeSend">Send</span>
+                </div>
+                <div class="compose-body">
+                    <input type="text" id="composeSender" placeholder="Sender Name (e.g., MPESA)">
+                    <textarea id="composeText" placeholder="Message content..."></textarea>
+                </div>
+            </div>
+        </div>
             </div>
             <div class="chat-body" id="chatBody"></div>
             <div class="chat-input-area">
@@ -103,6 +114,7 @@
             </div>
         </div>
 
+        <!-- Compose New Message Modal -->
         <div class="modal-overlay" id="composeModal">
             <div class="compose-sheet">
                 <div class="compose-header">
@@ -117,7 +129,7 @@
             </div>
         </div>
 
-        <!-- NEW: Recycle Bin Modal -->
+        <!-- Recycle Bin Modal -->
         <div class="modal-overlay" id="recycleBinModal">
             <div class="compose-sheet" style="height: 80vh;">
                 <div class="compose-header">

@@ -513,6 +513,13 @@ document.querySelectorAll('.nav-item').forEach(item => {
     });
 });
 
+function closeComposeModal() {
+    const modal = document.getElementById('composeModal');
+    modal.classList.remove('active');
+    document.getElementById('composeSender').value = ""; 
+    document.getElementById('composeText').value = "";
+}
+
 // Init
 renderMessages();
 renderContacts();
