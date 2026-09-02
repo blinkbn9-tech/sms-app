@@ -23,6 +23,7 @@ const defaultMessages = [
     { id: 5, name: "AirtelAlert", phone: "+254 730 111 111", color: "bg-red", initial: "A", time: getFormattedDate(daysAgo(10)), preview: "Dear customer, your account balance is Ksh 45.", unread: 12, pinned: false, allowReply: false, history: [{ text: "Dear customer, your account balance is Ksh 45.", type: "received", time: getFormattedDate(daysAgo(10)) }] },
     { id: 6, name: "SAFARIOM", phone: "+254 700 000 000", color: "bg-grey", initial: "S", time: getFormattedDate(daysAgo(45)), preview: "Tuma Pesa: You have received Ksh 2,000.", unread: 0, pinned: false, allowReply: true, history: [{ text: "Tuma Pesa: You have received Ksh 2,000.", type: "received", time: getFormattedDate(daysAgo(45)) }] }
 ];
+
 // DOM Elements
 const messagesList = document.getElementById('messagesList');
 const chatView = document.getElementById('chatView');
@@ -324,7 +325,7 @@ document.getElementById('composeSend').addEventListener('click', () => {
     const sender = document.getElementById('composeSender').value.trim() || "Unknown Sender";
     const text = document.getElementById('composeText').value.trim();
     if (!text) return;
-    const currentTime = getFormattedDateDate(new Date());
+    const currentTime = getFormattedDate(new Date());
     let existingChat = messagesData.find(m => m.name.toLowerCase() === sender.toLowerCase());
     if (existingChat) {
         existingChat.unread = (existingChat.unread || 0) + 1; existingChat.preview = text; existingChat.time = currentTime;
