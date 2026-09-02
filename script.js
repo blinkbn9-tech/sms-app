@@ -145,26 +145,43 @@ function renderMessages(filterText = "") {
 
 // 2. Render Contacts View (Real Phone Contacts)
 function renderContacts(filterText = "") {
-    // Check if Contact Picker API is supported
-    if (!('contacts' in navigator) || !navigator.contacts.select) {
-        contactsList.innerHTML = `
-            <div class="empty-state">
-                <i class="fas fa-address-book"></i>
-                <h3>Access Not Supported</h3>
-                <p>Your browser does not support reading phone contacts directly. Try opening this app on an Android phone using Chrome.</p>
+    const filteredData = messagesData.filter(msg => 
+        msg.name.toLowerCase().includes(filterText.toLowerCase()) || 
+        (msg.phone && msg.phone.includes(filterText.toLowerCase()))
+    );
+
+    let html = '';
+
+    // Add Import button if the phone supports it
+    if ('contacts' in navigator && navigator.contacts.select) {
+        html += `
+            <div style="padding: 15px 20px; border-bottom: 1px solid var(--border-color); text-align: center;">
+                <button id="pickContactsBtn" class="view-button" style="padding: 8px 20px; font-size: 14px;">
+                    <i class="fas fa-address-book"></i> Import from Phone
+                </button>
             </div>`;
-        return;
     }
 
-    contactsList.innerHTML = `
-        <div style="padding: 30px 20px; text-align: center;">
-            <button id="pickContactsBtn" class="view-button" style="padding: 12px 25px; font-size: 16px; margin-bottom: 20px;">
-                <i class="fas fa-address-book"></i> Select Phone Contacts
-            </button>
-            <div id="pickedContactsList"></div>
-        </div>`;
+    if(filteredData.length === 0) {
+        html += `<div class="empty-state"><i class="fas fa-user-slash"></i><h3>No Contacts</h3><p>Import contacts from your phone to start chatting.</p></div>`;
+    } else {
+        filteredData.sort((a, b) => a.name.localeCompare(b.name));
+        filteredData.forEach(msg => {
+            html += `
+                <div class="contact-item" onclick="openChat(${msg.id})">
+                    <div class="avatar ${msg.color}">${msg.initial}</div>
+                    <div class="contact-info">
+                        <div class="contact-name">${msg.name}</div>
+                        <div class="contact-phone">${msg.phone || 'Unknown Number'}</div>
+                    </div>
+                </div>`;
+        });
+    }
+
+    contactsList.innerHTML = html;
     
-    document.getElementById('pickContactsBtn').addEventListener('click', pickContacts);
+    const pickBtn = document.getElementById('pickContactsBtn');
+    if (pickBtn) pickBtn.addEventListener('click', pickContacts);
 }
 
 async function pickContacts() {
@@ -172,38 +189,32 @@ async function pickContacts() {
     const opts = { multiple: true };
     try {
         const contacts = await navigator.contacts.select(properties, opts);
-        let html = '';
+        if (contacts.length === 0) return;
+        
         contacts.forEach(c => {
             const name = c.name ? c.name[0] : "Unknown";
             const tel = c.tel ? c.tel[0] : "No Number";
-            const safeName = name.replace(/'/g, "");
-            const safeTel = tel.replace(/'/g, "");
-            html += `
-                <div class="contact-item" onclick="startChatFromContact('${safeName}', '${safeTel}')">
-                    <div class="avatar bg-grey">${name.charAt(0)}</div>
-                    <div class="contact-info">
-                        <div class="contact-name">${name}</div>
-                        <div class="contact-phone">${tel}</div>
-                    </div>
-                </div>`;
+            
+            // Check if contact already exists to avoid duplicates
+            let existingChat = messagesData.find(m => m.name === name && m.phone === tel);
+            if (!existingChat) {
+                const newContact = {
+                    id: Date.now() + Math.floor(Math.random() * 1000), 
+                    name: name, phone: tel, color: "bg-grey", initial: name.charAt(0).toUpperCase(),
+                    time: "Just now", preview: "Tap to start chatting...", unread: 0, pinned: false, 
+                    allowReply: true, history: []
+                };
+                messagesData.unshift(newContact);
+            }
         });
-        document.getElementById('pickedContactsList').innerHTML = html || `<p style="color: var(--text-secondary); font-size: 14px;">No contacts selected.</p>`;
+        
+        // Permanently save to the app's database!
+        saveMessages();
+        renderContacts(); // Re-render natively
+        
     } catch (err) {
         console.error("Contact picker error:", err);
     }
-}
-
-function startChatFromContact(name, tel) {
-    let existingChat = messagesData.find(m => m.name === name);
-    if (!existingChat) {
-        existingChat = {
-            id: Date.now(), name: name, phone: tel, color: "bg-grey", initial: name.charAt(0).toUpperCase(),
-            time: "Just now", preview: "Tap to start chatting...", unread: 0, pinned: false, allowReply: true, history: []
-        };
-        messagesData.unshift(existingChat);
-        saveMessages();
-    }
-    openChat(existingChat.id);
 }
 
 // 3. Update Unread Counts
