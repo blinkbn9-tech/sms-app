@@ -1,4 +1,4 @@
-const CACHE_NAME = 'sms-final-v23'; // Bumped to v22
+const CACHE_NAME = 'sms-final-v24';
 const urlsToCache = [
   './',
   './index.html',

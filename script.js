@@ -463,10 +463,10 @@ function sendMessage() {
     chatBody.appendChild(sentBubble);
     messageInput.value = "";
     
-    // FIX: Wait 10ms for keyboard to open, then smooth scroll
+    // Instant scroll (No smooth behavior to prevent mobile lag)
     setTimeout(() => { 
-        chatBody.scrollTo({ top: chatBody.scrollHeight, behavior: 'smooth' }); 
-    }, 10);
+        chatBody.scrollTop = chatBody.scrollHeight; 
+    }, 100);
 
     setTimeout(() => { 
         sentBubble.querySelector('.chat-meta').innerHTML = `<span>${time}</span><i class="fas fa-check-double read-receipt"></i>`; 
@@ -478,8 +478,8 @@ function sendMessage() {
     chatBody.appendChild(typingBubble);
     
     setTimeout(() => { 
-        chatBody.scrollTo({ top: chatBody.scrollHeight, behavior: 'smooth' }); 
-    }, 10);
+        chatBody.scrollTop = chatBody.scrollHeight; 
+    }, 100);
 
     setTimeout(() => {
         typingBubble.remove();
@@ -493,8 +493,8 @@ function sendMessage() {
         chatBody.appendChild(replyBubble);
         
         setTimeout(() => { 
-            chatBody.scrollTo({ top: chatBody.scrollHeight, behavior: 'smooth' }); 
-        }, 10);
+            chatBody.scrollTop = chatBody.scrollHeight; 
+        }, 100);
     }, 1500);
 }
 
