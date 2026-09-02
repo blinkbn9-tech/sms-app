@@ -1,7 +1,7 @@
 {
   "name": "Pro SMS App",
   "short_name": "Messages",
-  "start_url": "./index.html",
+  "start_url": "index.html",
   "scope": "./",
   "display": "standalone",
   "background_color": "#ffffff",

@@ -4,16 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Pro SMS App</title>
-    
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Messages">
     <meta name="theme-color" content="#007AFF">
-    
     <link rel="manifest" href="manifest.json">
     <link rel="icon" href="icon.png" type="image/png">
-    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
 </head>
@@ -33,7 +30,17 @@
                     <div class="header-title" id="viewTitle">Messages</div>
                     <div class="header-actions">
                         <i class="fas fa-search search-icon" id="searchToggle"></i>
-                        <i class="fas fa-moon dark-mode-icon" id="darkModeToggle"></i>
+                        <!-- NEW: Three Dots Menu -->
+                        <i class="fas fa-ellipsis-vertical menu-icon" id="menuToggle"></i>
+                    </div>
+                    
+                    <!-- NEW: Dropdown Menu -->
+                   <div class="menu-dropdown" id="menuDropdown">
+                        <div class="menu-item" id="menuSelect"><i class="fas fa-check-circle"></i> Select Messages</div>
+                        <div class="menu-item" id="menuMarkAllRead"><i class="fas fa-envelope-open"></i> Mark all as read</div>
+                        <div class="menu-item" id="menuStarred"><i class="fas fa-star"></i> Starred messages</div>
+                        <div class="menu-item" id="menuRecycleBin"><i class="fas fa-trash"></i> Recycle bin</div>
+                        <div class="menu-item" id="menuSettings"><i class="fas fa-gear"></i> Settings (Dark Mode)</div>
                     </div>
                 </div>
                 
@@ -56,9 +63,16 @@
                 <i class="fas fa-pen-to-square"></i>
             </div>
             
-            <!-- PWA Install Button -->
             <div class="install-fab" id="installBtn" style="display: none;">
                 <i class="fas fa-download"></i>
+            </div>
+
+            <!-- NEW: Selection Action Bar (Hidden by default) -->
+            <div class="selection-bar" id="selectionBar" style="display: none;">
+                <span id="selectedCount">0 selected</span>
+                <button class="select-all-btn" id="selectAllBtn">All</button>
+                <button class="delete-selected-btn" id="deleteSelectedBtn"><i class="fas fa-trash"></i></button>
+                <button class="cancel-selected-btn" id="cancelSelectedBtn">Cancel</button>
             </div>
 
             <div class="bottom-nav">
@@ -103,6 +117,18 @@
             </div>
         </div>
 
+        <!-- NEW: Recycle Bin Modal -->
+        <div class="modal-overlay" id="recycleBinModal">
+            <div class="compose-sheet" style="height: 80vh;">
+                <div class="compose-header">
+                    <span class="compose-cancel" id="closeRecycleBin">Close</span>
+                    <span class="compose-title">Recycle Bin</span>
+                    <span class="compose-send" id="emptyRecycleBinBtn" style="color: var(--danger);">Empty</span>
+                </div>
+                <div class="compose-body" id="recycleBinList" style="overflow-y: auto; padding-bottom: 20px;"></div>
+            </div>
+        </div>
+
         <div class="context-menu-overlay" id="contextMenuOverlay">
             <div class="context-menu" id="contextMenu">
                 <div class="context-item" id="ctxMarkRead">Mark as Read</div>
@@ -119,12 +145,9 @@
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('sw.js')
                     .then(reg => {
-                        console.log('SW Registered!');
-                        // Listen for updates
                         reg.addEventListener('updatefound', () => {
                             const newWorker = reg.installing;
                             newWorker.addEventListener('statechange', () => {
-                                // When the new SW is installed, force the page to reload!
                                 if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
                                     window.location.reload();
                                 }
@@ -134,22 +157,14 @@
                     .catch(err => console.error('SW Failed:', err));
             });
         }
-
         let deferredPrompt;
         const installBtn = document.getElementById('installBtn');
         window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            if(installBtn) installBtn.style.display = 'flex';
+            e.preventDefault(); deferredPrompt = e; if(installBtn) installBtn.style.display = 'flex';
         });
         if(installBtn) {
             installBtn.addEventListener('click', async () => {
-                if (deferredPrompt) {
-                    deferredPrompt.prompt();
-                    const { outcome } = await deferredPrompt.userChoice;
-                    installBtn.style.display = 'none';
-                    deferredPrompt = null;
-                }
+                if (deferredPrompt) { deferredPrompt.prompt(); const { outcome } = await deferredPrompt.userChoice; installBtn.style.display = 'none'; deferredPrompt = null; }
             });
         }
     </script>
