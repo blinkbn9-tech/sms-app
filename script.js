@@ -448,27 +448,46 @@ function sendMessage() {
     const time = getFormattedDate(new Date());
     message.history.push({ text, type: "sent", time });
     message.preview = text; message.time = "Just now"; saveMessages();
+    
+    const chatBody = document.getElementById('chatBody');
     const sentBubble = document.createElement('div');
     sentBubble.className = 'chat-bubble sent';
     sentBubble.innerHTML = `${text}<div class="chat-meta"><span>${time}</span><i class="fas fa-check"></i></div>`;
-    document.getElementById('chatBody').appendChild(sentBubble);
+    chatBody.appendChild(sentBubble);
     messageInput.value = "";
-    document.getElementById('chatBody').scrollTop = document.getElementById('chatBody').scrollHeight;
-    setTimeout(() => { sentBubble.querySelector('.chat-meta').innerHTML = `<span>${time}</span><i class="fas fa-check-double read-receipt"></i>`; }, 500);
+    
+    // NEW: Smooth scrolling without lag
+    requestAnimationFrame(() => {
+        chatBody.scrollTop = chatBody.scrollHeight;
+    });
+
+    setTimeout(() => { 
+        sentBubble.querySelector('.chat-meta').innerHTML = `<span>${time}</span><i class="fas fa-check-double read-receipt"></i>`; 
+    }, 500);
+    
     const typingBubble = document.createElement('div');
     typingBubble.className = 'chat-bubble received typing-indicator';
     typingBubble.innerHTML = '<span></span><span></span><span></span>';
-    document.getElementById('chatBody').appendChild(typingBubble);
-    document.getElementById('chatBody').scrollTop = document.getElementById('chatBody').scrollHeight;
+    chatBody.appendChild(typingBubble);
+    
+    requestAnimationFrame(() => {
+        chatBody.scrollTop = chatBody.scrollHeight;
+    });
+
     setTimeout(() => {
         typingBubble.remove();
-        const replyText = "Got it! Thanks for your message."; const replyTime = getFormattedDate(new Date());
-        message.history.push({ text: replyText, type: "received", time: replyTime }); saveMessages();
+        const replyText = "Got it! Thanks for your message."; 
+        const replyTime = getFormattedDate(new Date());
+        message.history.push({ text: replyText, type: "received", time: replyTime }); 
+        saveMessages();
         const replyBubble = document.createElement('div');
         replyBubble.className = 'chat-bubble received';
         replyBubble.innerHTML = `${replyText}<div class="chat-meta"><span>${replyTime}</span></div>`;
-        document.getElementById('chatBody').appendChild(replyBubble);
-        document.getElementById('chatBody').scrollTop = document.getElementById('chatBody').scrollHeight;
+        chatBody.appendChild(replyBubble);
+        
+        requestAnimationFrame(() => {
+            chatBody.scrollTop = chatBody.scrollHeight;
+        });
     }, 1500);
 }
 
