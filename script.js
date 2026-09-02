@@ -404,8 +404,15 @@ function openChat(id) {
     if (message.allowReply === false || message.name === "MPESA" || message.name === "AirtelAlert") chatInputArea.style.display = 'none';
     else chatInputArea.style.display = 'flex';
     if(message.unread > 0) { message.unread = 0; saveMessages(); }
-    renderChatHistory(message); chatView.classList.add('active');
+    renderChatHistory(message); 
+    chatView.classList.add('active');
+    
+    // FIX: Scroll to bottom when chat opens (wait for slide animation)
+    setTimeout(() => {
+        document.getElementById('chatBody').scrollTop = document.getElementById('chatBody').scrollHeight;
+    }, 300);
 }
+
 function renderChatHistory(message) {
     const chatBody = document.getElementById('chatBody');
     chatBody.innerHTML = `<div class="chat-date-divider">Today</div>`;
@@ -456,10 +463,10 @@ function sendMessage() {
     chatBody.appendChild(sentBubble);
     messageInput.value = "";
     
-    // NEW: Smooth scrolling without lag
-    requestAnimationFrame(() => {
-        chatBody.scrollTop = chatBody.scrollHeight;
-    });
+    // FIX: Wait 10ms for keyboard to open, then smooth scroll
+    setTimeout(() => { 
+        chatBody.scrollTo({ top: chatBody.scrollHeight, behavior: 'smooth' }); 
+    }, 10);
 
     setTimeout(() => { 
         sentBubble.querySelector('.chat-meta').innerHTML = `<span>${time}</span><i class="fas fa-check-double read-receipt"></i>`; 
@@ -470,9 +477,9 @@ function sendMessage() {
     typingBubble.innerHTML = '<span></span><span></span><span></span>';
     chatBody.appendChild(typingBubble);
     
-    requestAnimationFrame(() => {
-        chatBody.scrollTop = chatBody.scrollHeight;
-    });
+    setTimeout(() => { 
+        chatBody.scrollTo({ top: chatBody.scrollHeight, behavior: 'smooth' }); 
+    }, 10);
 
     setTimeout(() => {
         typingBubble.remove();
@@ -485,9 +492,9 @@ function sendMessage() {
         replyBubble.innerHTML = `${replyText}<div class="chat-meta"><span>${replyTime}</span></div>`;
         chatBody.appendChild(replyBubble);
         
-        requestAnimationFrame(() => {
-            chatBody.scrollTop = chatBody.scrollHeight;
-        });
+        setTimeout(() => { 
+            chatBody.scrollTo({ top: chatBody.scrollHeight, behavior: 'smooth' }); 
+        }, 10);
     }, 1500);
 }
 
