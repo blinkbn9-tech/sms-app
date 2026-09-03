@@ -1,34 +1,23 @@
-const CACHE_NAME = 'sms-offline-v29';
+const CACHE_NAME = 'sms-icons-v31'; // Bumped to v31
 const urlsToCache = [
   './',
   './index.html',
   './style.css',
   './script.js',
   './manifest.json',
-  './icon.png'
+  './icon.png',
+  'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css' // ADDED ICONS HERE
 ];
 
 self.addEventListener('install', e => {
   self.skipWaiting();
   e.waitUntil(
     caches.open(CACHE_NAME).then(cache => {
-      // Cache local files, ignore external CDN failures
       return Promise.allSettled(
         urlsToCache.map(url => cache.add(url).catch(() => {}))
       );
     })
   );
-});
-
-self.addEventListener('activate', e => {
-  e.waitUntil(
-    caches.keys().then(cacheNames => 
-      Promise.all(cacheNames.map(cacheName => {
-        if (cacheName !== CACHE_NAME) return caches.delete(cacheName);
-      }))
-    )
-  );
-  self.clients.claim();
 });
 
 // OFFLINE FIRST: Use saved files instantly, only use network if not saved
