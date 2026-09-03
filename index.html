@@ -212,7 +212,7 @@
         const minsAgo = (m) => new Date(Date.now() - m * 60000);
         const daysAgo = (d) => new Date(Date.now() - d * 86400000);
         const defaultMessages = [
-            { id: 1, name: "MPESA", phone: "+254 722 000 000", color: "bg-green", initial: "M", time: getFormattedDate(minsAgo(15)), preview: "You have received Ksh 1,500 from JOHN DOE.", unread: 3, pinned: false, allowReply: false, history: [{ text: "You have received Ksh 1,500 from JOHN DOE. New balance is 3,450.", type: "received", time: getFormattedDate(minsAgo(15)) }] },
+            { id: 1, name: "MPESA", phone: "+254 722 000 000", color: "bg-green", initial: "M", time: getFormattedDate(minsAgo(15)), preview: "UIZAN505F5 Confirmed Ksh 1,500 from David Kanyi .", unread: 3, pinned: false, allowReply: false, history: [{ text: "UIZAN505F5 Confirmed Ksh 1,500 from David Kanyi . New balance is 3,450.", type: "received", time: getFormattedDate(minsAgo(15)) }] },
             { id: 2, name: "Safaricom", phone: "+254 720 000 000", color: "bg-blue", initial: "S", time: getFormattedDate(minsAgo(120)), preview: "Your data balance is 2.5GB.", unread: 8, pinned: false, allowReply: true, history: [{ text: "Your data balance is 2.5GB. Expires on 28/08/2026.", type: "received", time: getFormattedDate(minsAgo(120)) }] },
             { id: 3, name: "Voice Mail", phone: "+254 711 000 000", color: "bg-purple", initial: "V", time: getFormattedDate(daysAgo(1)), preview: "You have 8 new voice messages.", unread: 8, pinned: false, allowReply: true, history: [{ text: "You have 8 new voice messages. Call 111 to listen.", type: "received", time: getFormattedDate(daysAgo(1)) }] },
             { id: 4, name: "Airtel", phone: "+254 730 000 000", color: "bg-orange", initial: "A", time: getFormattedDate(daysAgo(3)), preview: "Your Airtel data balance is 1.2GB.", unread: 21, pinned: false, allowReply: true, history: [{ text: "Your Airtel data balance is 1.2GB.", type: "received", time: getFormattedDate(daysAgo(3)) }] },
@@ -230,16 +230,21 @@
         
         // FORCE LOCAL STORAGE CLEAR TO FIX OLD TIME & MPESA BUGS
         function loadMessages() {
-            if (localStorage.getItem('sms_app_v38') !== 'true') {
+            // Force clear old data for v39
+            if (localStorage.getItem('sms_app_v39') !== 'true') {
                 localStorage.removeItem('sms_app_pro');
                 localStorage.removeItem('sms_app_deleted');
-                localStorage.setItem('sms_app_v38', 'true');
+                localStorage.setItem('sms_app_v39', 'true');
             }
             const saved = localStorage.getItem('sms_app_pro');
+            // List of names that should never have a reply bar
+            const noReplyNames = ["MPESA", "Safaricom", "Voice Mail", "Airtel", "AirtelAlert"];
+            
             if (saved) {
                 return JSON.parse(saved).map(msg => {
                     let allowReply = msg.allowReply !== undefined ? msg.allowReply : true;
-                    if (msg.name === "MPESA" || msg.name === "AirtelAlert") allowReply = false; // Force fix
+                    // Force allowReply to false if the name is in the list
+                    if (noReplyNames.includes(msg.name)) allowReply = false;
                     return { ...msg, pinned: msg.pinned || false, phone: msg.phone || "Unknown", allowReply, history: msg.history || [{ text: msg.preview, type: "received", time: msg.time }] };
                 });
             }
