@@ -1,3 +1,5 @@
+<!DOCTYPE html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -8,13 +10,11 @@
     <meta name="theme-color" content="#007AFF">
     <link rel="manifest" href="manifest.json">
     
-    <!-- IMPORT QUICKSAND FONT (Looks exactly like Cool Jazz) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
-        /* Updated to use Quicksand, with Cool Jazz as backup */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Quicksand', 'Cool Jazz', 'Roboto', sans-serif !important; font-size: 13px; }
         :root { --bg-primary: #ffffff; --bg-secondary: #f5f5f5; --bg-tertiary: #e5e5ea; --text-primary: #000000; --text-secondary: #666666; --border-color: #eeeeee; --bubble-received: #e9e9eb; --accent: #007AFF; --danger: #FF3B30; }
         body.dark-mode { --bg-primary: #1c1c1e; --bg-secondary: #000000; --bg-tertiary: #2c2c2e; --text-primary: #ffffff; --text-secondary: #98989f; --border-color: #38383a; --bubble-received: #2c2c2e; }
@@ -31,7 +31,6 @@
         .menu-dropdown.show { display: block; }
         .menu-item { padding: 12px 14px; font-size: 13px; color: var(--text-primary); cursor: pointer; border-bottom: 1px solid var(--border-color); }
         .menu-item:last-child { border-bottom: none; }
-        .menu-item:hover { background: var(--bg-secondary); }
         .search-bar { max-height: 0; overflow: hidden; transition: max-height 0.3s; }
         .search-bar.active { max-height: 40px; margin-bottom: 12px; }
         .search-bar input { width: 100%; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-secondary); color: var(--text-primary); outline: none; font-size: 13px; }
@@ -52,14 +51,19 @@
         .delete-bg { position: absolute; top: 0; right: 0; width: 100%; height: 100%; background: var(--danger); display: flex; align-items: center; justify-content: flex-end; padding-right: 16px; color: white; font-weight: 600; z-index: 1; font-size: 13px; }
         .mark-read-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--accent); display: flex; align-items: center; justify-content: flex-start; padding-left: 16px; color: white; font-size: 16px; z-index: 1; }
         .message-item { display: flex; padding: 12px 16px; cursor: pointer; background: var(--bg-primary); position: relative; z-index: 2; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none !important; -webkit-tap-highlight-color: transparent; touch-action: pan-y; }
+        
+        /* Avatar & Personal Icon Styles */
         .avatar { width: 42px; height: 42px; border-radius: 50%; margin-right: 12px; display: flex; align-items: center; justify-content: center; font-weight: 600; color: #fff; font-size: 16px; flex-shrink: 0; }
+        .bg-personal { background: #545458; color: #ffffff; } /* Darker background for personal contacts */
+        body.dark-mode .bg-personal { background: #3a3a3c; }
+        .avatar svg { width: 60%; height: 60%; fill: currentColor; }
+
         .message-content { flex: 1; overflow: hidden; }
         .message-header { display: flex; justify-content: space-between; margin-bottom: 4px; }
         .sender-name { font-weight: 600; font-size: 14px; color: var(--text-primary); display: flex; align-items: center; }
         .timestamp { font-size: 10px; color: var(--text-secondary); }
         .message-preview { font-size: 12px; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .unread-badge { align-self: center; background: var(--accent); color: white; font-size: 10px; font-weight: 600; border-radius: 8px; padding: 2px 6px; margin-left: 8px; }
-        .list-divider { padding: 12px 16px 4px; font-size: 10px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; background: var(--bg-primary); }
         .fab { position: absolute; bottom: 70px; right: 16px; width: 48px; height: 48px; background: var(--accent); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); cursor: pointer; z-index: 5; border: none; }
         .bottom-nav { position: absolute; bottom: 0; left: 0; right: 0; height: 55px; background: var(--bg-primary); border-top: 1px solid var(--border-color); display: flex; padding-bottom: env(safe-area-inset-bottom); z-index: 6; }
         .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-secondary); cursor: pointer; }
@@ -171,7 +175,7 @@
                     <span class="compose-send" id="composeSend">Send</span>
                 </div>
                 <div class="compose-body">
-                    <input type="text" id="composeSender" placeholder="Sender Name (Quick Reply)">
+                    <input type="text" id="composeSender" placeholder="Sender Name (e.g., MPESA)">
                     <textarea id="composeText" placeholder="Message content..."></textarea>
                 </div>
             </div>
@@ -199,6 +203,9 @@
     </div>
 
     <script>
+        // SVG for Personal Contacts
+        const personIconSVG = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>';
+        
         function getFormattedDate(date = new Date()) {
             const now = new Date();
             const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -212,10 +219,10 @@
         const minsAgo = (m) => new Date(Date.now() - m * 60000);
         const daysAgo = (d) => new Date(Date.now() - d * 86400000);
         const defaultMessages = [
-            { id: 1, name: "MPESA", phone: "+254 722 000 000", color: "bg-green", initial: "M", time: getFormattedDate(minsAgo(15)), preview: "UIZAN505F5 Confirmed Ksh 1,500 from David Kanyi .", unread: 3, pinned: false, allowReply: false, history: [{ text: "UIZAN505F5 Confirmed Ksh 1,500 from David Kanyi . New balance is 3,450.", type: "received", time: getFormattedDate(minsAgo(15)) }] },
-            { id: 2, name: "Safaricom", phone: "+254 720 000 000", color: "bg-blue", initial: "S", time: getFormattedDate(minsAgo(120)), preview: "Your data balance is 2.5GB.", unread: 8, pinned: false, allowReply: true, history: [{ text: "Your data balance is 2.5GB. Expires on 28/08/2026.", type: "received", time: getFormattedDate(minsAgo(120)) }] },
-            { id: 3, name: "Voice Mail", phone: "+254 711 000 000", color: "bg-purple", initial: "V", time: getFormattedDate(daysAgo(1)), preview: "You have 8 new voice messages.", unread: 8, pinned: false, allowReply: true, history: [{ text: "You have 8 new voice messages. Call 111 to listen.", type: "received", time: getFormattedDate(daysAgo(1)) }] },
-            { id: 4, name: "Airtel", phone: "+254 730 000 000", color: "bg-orange", initial: "A", time: getFormattedDate(daysAgo(3)), preview: "Your Airtel data balance is 1.2GB.", unread: 21, pinned: false, allowReply: true, history: [{ text: "Your Airtel data balance is 1.2GB.", type: "received", time: getFormattedDate(daysAgo(3)) }] },
+            { id: 1, name: "MPESA", phone: "+254 722 000 000", color: "bg-green", initial: "M", time: getFormattedDate(minsAgo(15)), preview: "You have received Ksh 1,500 from JOHN DOE.", unread: 3, pinned: false, allowReply: false, history: [{ text: "You have received Ksh 1,500 from JOHN DOE. New balance is 3,450.", type: "received", time: getFormattedDate(minsAgo(15)) }] },
+            { id: 2, name: "Safaricom", phone: "+254 720 000 000", color: "bg-blue", initial: "S", time: getFormattedDate(minsAgo(120)), preview: "Your data balance is 2.5GB.", unread: 8, pinned: false, allowReply: false, history: [{ text: "Your data balance is 2.5GB. Expires on 28/08/2026.", type: "received", time: getFormattedDate(minsAgo(120)) }] },
+            { id: 3, name: "Voice Mail", phone: "+254 711 000 000", color: "bg-purple", initial: "V", time: getFormattedDate(daysAgo(1)), preview: "You have 8 new voice messages.", unread: 8, pinned: false, allowReply: false, history: [{ text: "You have 8 new voice messages. Call 111 to listen.", type: "received", time: getFormattedDate(daysAgo(1)) }] },
+            { id: 4, name: "Airtel", phone: "+254 730 000 000", color: "bg-orange", initial: "A", time: getFormattedDate(daysAgo(3)), preview: "Your Airtel data balance is 1.2GB.", unread: 21, pinned: false, allowReply: false, history: [{ text: "Your Airtel data balance is 1.2GB.", type: "received", time: getFormattedDate(daysAgo(3)) }] },
             { id: 5, name: "AirtelAlert", phone: "+254 730 111 111", color: "bg-red", initial: "A", time: getFormattedDate(daysAgo(10)), preview: "Dear customer, your account balance is Ksh 45.", unread: 12, pinned: false, allowReply: false, history: [{ text: "Dear customer, your account balance is Ksh 45.", type: "received", time: getFormattedDate(daysAgo(10)) }] },
             { id: 6, name: "SAFARICOM", phone: "+254 700 000 000", color: "bg-grey", initial: "S", time: getFormattedDate(daysAgo(45)), preview: "Tuma Pesa: You have received Ksh 2,000.", unread: 0, pinned: false, allowReply: true, history: [{ text: "Tuma Pesa: You have received Ksh 2,000.", type: "received", time: getFormattedDate(daysAgo(45)) }] }
         ];
@@ -228,22 +235,17 @@
         function saveMessages() { localStorage.setItem('sms_app_pro', JSON.stringify(messagesData)); }
         function saveDeletedMessages() { localStorage.setItem('sms_app_deleted', JSON.stringify(deletedMessagesData)); }
         
-        // FORCE LOCAL STORAGE CLEAR TO FIX OLD TIME & MPESA BUGS
         function loadMessages() {
-            // Force clear old data for v39
-            if (localStorage.getItem('sms_app_v39') !== 'true') {
+            if (localStorage.getItem('sms_app_v41') !== 'true') {
                 localStorage.removeItem('sms_app_pro');
                 localStorage.removeItem('sms_app_deleted');
-                localStorage.setItem('sms_app_v39', 'true');
+                localStorage.setItem('sms_app_v41', 'true');
             }
             const saved = localStorage.getItem('sms_app_pro');
-            // List of names that should never have a reply bar
             const noReplyNames = ["MPESA", "Safaricom", "Voice Mail", "Airtel", "AirtelAlert"];
-            
             if (saved) {
                 return JSON.parse(saved).map(msg => {
                     let allowReply = msg.allowReply !== undefined ? msg.allowReply : true;
-                    // Force allowReply to false if the name is in the list
                     if (noReplyNames.includes(msg.name)) allowReply = false;
                     return { ...msg, pinned: msg.pinned || false, phone: msg.phone || "Unknown", allowReply, history: msg.history || [{ text: msg.preview, type: "received", time: msg.time }] };
                 });
@@ -265,7 +267,7 @@
         document.getElementById('menuRecycleBin').addEventListener('click', () => { menuDropdown.classList.remove('show'); renderRecycleBin(); recycleBinModal.classList.add('active'); });
         document.getElementById('closeRecycleBin').addEventListener('click', () => recycleBinModal.classList.remove('active'));
         document.getElementById('emptyRecycleBinBtn').addEventListener('click', () => { deletedMessagesData = []; saveDeletedMessages(); renderRecycleBin(); });
-        function renderRecycleBin() { const list = document.getElementById('recycleBinList'); if (deletedMessagesData.length === 0) { list.innerHTML = `<p style="text-align:center; color:var(--text-secondary); padding:40px; font-size:13px;">Recycle bin is empty.</p>`; return; } list.innerHTML = deletedMessagesData.map(msg => `<div class="recycle-item"><div class="avatar ${msg.color}">${msg.initial}</div><div class="recycle-info"><div class="contact-name">${msg.name}</div><div class="contact-phone" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${msg.preview}</div></div><button class="restore-btn" onclick="restoreMessage(${msg.id})">Restore</button></div>`).join(''); }
+        function renderRecycleBin() { const list = document.getElementById('recycleBinList'); if (deletedMessagesData.length === 0) { list.innerHTML = `<p style="text-align:center; color:var(--text-secondary); padding:40px; font-size:13px;">Recycle bin is empty.</p>`; return; } list.innerHTML = deletedMessagesData.map(msg => `<div class="recycle-item"><div class="avatar ${msg.color}">${msg.color === 'bg-personal' ? personIconSVG : msg.initial}</div><div class="recycle-info"><div class="contact-name">${msg.name}</div><div class="contact-phone" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${msg.preview}</div></div><button class="restore-btn" onclick="restoreMessage(${msg.id})">Restore</button></div>`).join(''); }
         function restoreMessage(id) { const msg = deletedMessagesData.find(m => m.id === id); messagesData.unshift(msg); deletedMessagesData = deletedMessagesData.filter(m => m.id !== id); saveMessages(); saveDeletedMessages(); renderRecycleBin(); renderMessages(); }
 
         const viewUnreadBtn = document.getElementById('viewUnreadBtn');
@@ -280,7 +282,8 @@
             if (filteredData.length === 0) { messagesList.innerHTML = `<div style="text-align:center; padding:40px; color:var(--text-secondary); font-size:13px;">No messages</div>`; updateUnread(); return; }
             let html = '';
             filteredData.forEach(msg => {
-                html += `<div class="message-wrapper ${msg.pinned ? 'pinned' : ''}" data-id="${msg.id}"><div class="delete-bg">Delete</div><div class="mark-read-bg">✓</div><div class="message-item"><div class="avatar ${msg.color}">${msg.initial}</div><div class="message-content"><div class="message-header"><div class="sender-name">${msg.pinned ? '📌 ' : ''}${msg.name}</div><div class="timestamp">${msg.time}</div></div><div class="message-preview">${msg.preview}</div></div>${msg.unread > 0 ? `<div class="unread-badge">${msg.unread}</div>` : ''}</div></div>`;
+                const avatarContent = msg.color === 'bg-personal' ? personIconSVG : msg.initial;
+                html += `<div class="message-wrapper ${msg.pinned ? 'pinned' : ''}" data-id="${msg.id}"><div class="delete-bg">Delete</div><div class="mark-read-bg">✓</div><div class="message-item"><div class="avatar ${msg.color}">${avatarContent}</div><div class="message-content"><div class="message-header"><div class="sender-name">${msg.pinned ? '📌 ' : ''}${msg.name}</div><div class="timestamp">${msg.time}</div></div><div class="message-preview">${msg.preview}</div></div>${msg.unread > 0 ? `<div class="unread-badge">${msg.unread}</div>` : ''}</div></div>`;
             });
             messagesList.innerHTML = html;
             setupMessageInteractions();
@@ -323,7 +326,7 @@
             const time = getFormattedDate(new Date());
             let existing = messagesData.find(m => m.name === sender);
             if(existing) { existing.unread++; existing.preview = text; existing.time = time; existing.history.push({ text, type: "received", time }); }
-            else { messagesData.unshift({ id: Date.now(), name: sender, phone: "Unknown", color: "bg-grey", initial: sender.charAt(0), time, preview: text, unread: 1, pinned: false, allowReply: true, history: [{ text, type: "received", time }] }); }
+            else { messagesData.unshift({ id: Date.now(), name: sender, phone: "Unknown", color: "bg-personal", initial: "", time, preview: text, unread: 1, pinned: false, allowReply: true, history: [{ text, type: "received", time }] }); }
             saveMessages(); renderMessages();
             document.getElementById('composeModal').classList.remove('active');
             document.getElementById('composeSender').value = ""; document.getElementById('composeText').value = "";
@@ -333,27 +336,28 @@
         const searchBar = document.getElementById('searchBar');
         const searchInput = document.getElementById('searchInput');
         searchToggle.addEventListener('click', () => searchBar.classList.toggle('active'));
-        searchInput.addEventListener('input', (e) => { const val = e.target.value.toLowerCase(); const filtered = messagesData.filter(m => m.name.toLowerCase().includes(val) || m.preview.toLowerCase().includes(val)); if(filtered.length === 0) { messagesList.innerHTML = `<div style="text-align:center; padding:40px; color:var(--text-secondary); font-size:13px;">No results</div>`; return; } messagesList.innerHTML = filtered.map(msg => `<div class="message-item" onclick="openChat(${msg.id})" style="display:flex; padding:12px 16px; border-bottom:1px solid var(--border-color);"><div class="avatar ${msg.color}">${msg.initial}</div><div class="message-content"><div class="message-header"><div class="sender-name">${msg.name}</div><div class="timestamp">${msg.time}</div></div><div class="message-preview">${msg.preview}</div></div></div>`).join(''); });
+        searchInput.addEventListener('input', (e) => { const val = e.target.value.toLowerCase(); const filtered = messagesData.filter(m => m.name.toLowerCase().includes(val) || m.preview.toLowerCase().includes(val)); if(filtered.length === 0) { messagesList.innerHTML = `<div style="text-align:center; padding:40px; color:var(--text-secondary); font-size:13px;">No results</div>`; return; } messagesList.innerHTML = filtered.map(msg => { const av = msg.color === 'bg-personal' ? personIconSVG : msg.initial; return `<div class="message-item" onclick="openChat(${msg.id})" style="display:flex; padding:12px 16px; border-bottom:1px solid var(--border-color);"><div class="avatar ${msg.color}">${av}</div><div class="message-content"><div class="message-header"><div class="sender-name">${msg.name}</div><div class="timestamp">${msg.time}</div></div><div class="message-preview">${msg.preview}</div></div></div>`; }).join(''); });
 
         function renderContacts() {
             const contactsList = document.getElementById('contactsList');
             let html = '';
             if ('contacts' in navigator && navigator.contacts.select) { html += `<div style="padding: 12px 16px; text-align: center;"><button class="view-button" id="pickContactsBtn" style="padding: 6px 16px; font-size: 12px;">📒 Import from Phone</button></div>`; }
             if(messagesData.length === 0) { html += `<div style="text-align:center; padding:40px; color:var(--text-secondary); font-size:13px;">No contacts</div>`; }
-            else { messagesData.sort((a, b) => a.name.localeCompare(b.name)); messagesData.forEach(msg => { html += `<div class="contact-item" onclick="openChat(${msg.id})"><div class="avatar ${msg.color}">${msg.initial}</div><div class="contact-info"><div class="contact-name">${msg.name}</div><div class="contact-phone">${msg.phone}</div></div></div>`; }); }
+            else { messagesData.sort((a, b) => a.name.localeCompare(b.name)); messagesData.forEach(msg => { const av = msg.color === 'bg-personal' ? personIconSVG : msg.initial; html += `<div class="contact-item" onclick="openChat(${msg.id})"><div class="avatar ${msg.color}">${av}</div><div class="contact-info"><div class="contact-name">${msg.name}</div><div class="contact-phone">${msg.phone}</div></div></div>`; }); }
             contactsList.innerHTML = html;
             const pickBtn = document.getElementById('pickContactsBtn');
             if (pickBtn) pickBtn.addEventListener('click', pickContacts);
         }
         async function pickContacts() {
-            try { const contacts = await navigator.contacts.select(['name', 'tel'], { multiple: true }); if (contacts.length === 0) return; contacts.forEach(c => { const name = c.name ? c.name[0] : "Unknown"; const tel = c.tel ? c.tel[0] : "No Number"; let existing = messagesData.find(m => m.name === name && m.phone === tel); if (!existing) messagesData.unshift({ id: Date.now() + Math.random(), name, phone: tel, color: "bg-grey", initial: name.charAt(0), time: "Just now", preview: "Tap to start chatting...", unread: 0, pinned: false, allowReply: true, history: [] }); }); saveMessages(); renderContacts(); } catch (err) {}
+            try { const contacts = await navigator.contacts.select(['name', 'tel'], { multiple: true }); if (contacts.length === 0) return; contacts.forEach(c => { const name = c.name ? c.name[0] : "Unknown"; const tel = c.tel ? c.tel[0] : "No Number"; let existing = messagesData.find(m => m.name === name && m.phone === tel); if (!existing) messagesData.unshift({ id: Date.now() + Math.random(), name, phone: tel, color: "bg-personal", initial: "", time: "Just now", preview: "Tap to start chatting...", unread: 0, pinned: false, allowReply: true, history: [] }); }); saveMessages(); renderContacts(); } catch (err) {}
         }
 
         function openChat(id) {
             const msg = messagesData.find(m => m.id === id);
             activeChatId = id;
             document.getElementById('chatTitle').textContent = msg.name;
-            document.getElementById('chatAvatar').textContent = msg.initial;
+            const av = msg.color === 'bg-personal' ? personIconSVG : msg.initial;
+            document.getElementById('chatAvatar').innerHTML = av;
             document.getElementById('chatAvatar').className = `chat-avatar ${msg.color}`;
             document.getElementById('chatInputArea').style.display = (msg.allowReply === false) ? 'none' : 'flex';
             if(msg.unread > 0) { msg.unread = 0; saveMessages(); }
@@ -395,32 +399,21 @@
             const time = getFormattedDate(new Date());
             msg.history.push({ text, type: "sent", time });
             msg.preview = text; msg.time = "Just now"; saveMessages();
-            
             const chatBody = document.getElementById('chatBody');
             const sentBubble = document.createElement('div');
             sentBubble.className = 'chat-bubble sent';
             sentBubble.innerHTML = `${text}<div class="chat-meta"><span>${time}</span> ✓</div>`;
             chatBody.appendChild(sentBubble);
-            
             input.value = "";
-            chatBody.scrollTop = chatBody.scrollHeight; // Instant scroll
-            
+            chatBody.scrollTop = chatBody.scrollHeight;
             const typingBubble = document.createElement('div');
             typingBubble.className = 'typing-indicator';
             typingBubble.innerHTML = '<span></span><span></span><span></span>';
-            
-            setTimeout(() => { 
-                chatBody.appendChild(typingBubble); 
-                chatBody.scrollTop = chatBody.scrollHeight; 
-            }, 500);
-            
+            setTimeout(() => { chatBody.appendChild(typingBubble); chatBody.scrollTop = chatBody.scrollHeight; }, 500);
             setTimeout(() => {
                 typingBubble.remove();
-                const replyText = "Got it! Thanks for your message."; 
-                const replyTime = getFormattedDate(new Date());
-                msg.history.push({ text: replyText, type: "received", time: replyTime }); 
-                saveMessages();
-                
+                const replyText = "Got it! Thanks for your message."; const replyTime = getFormattedDate(new Date());
+                msg.history.push({ text: replyText, type: "received", time: replyTime }); saveMessages();
                 const replyBubble = document.createElement('div');
                 replyBubble.className = 'chat-bubble received';
                 replyBubble.innerHTML = `${replyText}<div class="chat-meta"><span>${replyTime}</span></div>`;
