@@ -4,120 +4,149 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Pro SMS App</title>
-    
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Messages">
     <meta name="theme-color" content="#007AFF">
-    
     <link rel="manifest" href="manifest.json">
-    <link rel="icon" href="icon.png" type="image/png">
-    
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css">
     <style>
-        * {
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-        }
+        * { 
+    margin: 0; padding: 0; box-sizing: border-box; 
+    /* Added specific Android/Samsung/Pixel fonts and !important to force it */
+    font-family: 'Samsung One UI', 'SamsungOne', 'Noto Sans', 'Roboto', system-ui, -apple-system, BlinkMacSystemFont, sans-serif !important; 
+}
+        :root { --bg-primary: #ffffff; --bg-secondary: #f5f5f5; --bg-tertiary: #e5e5ea; --text-primary: #000000; --text-secondary: #666666; --border-color: #eeeeee; --bubble-received: #e9e9eb; --accent: #007AFF; --danger: #FF3B30; }
+        body.dark-mode { --bg-primary: #1c1c1e; --bg-secondary: #000000; --bg-tertiary: #2c2c2e; --text-primary: #ffffff; --text-secondary: #98989f; --border-color: #38383a; --bubble-received: #2c2c2e; }
+        body { background: var(--bg-secondary); color: var(--text-primary); max-width: 480px; margin: 0 auto; height: 100vh; overflow: hidden; }
+        .app-container { position: relative; height: 100vh; width: 100%; max-width: 480px; margin: 0 auto; overflow: hidden; }
+        .main-view { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; overflow: hidden; }
+        .header { background: var(--bg-primary); padding: 15px 20px; padding-top: calc(15px + env(safe-area-inset-top)); border-bottom: 1px solid var(--border-color); flex-shrink: 0; }
+        .header-content { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; position: relative; }
+        .header-title { font-size: 22px; font-weight: 700; }
+        .header-actions { display: flex; gap: 20px; align-items: center; }
+        .icon-btn { font-size: 20px; cursor: pointer; background: none; border: none; color: var(--accent); padding: 5px; }
+        .menu-dropdown { position: absolute; top: 45px; right: 0; background: var(--bg-primary); border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); z-index: 50; width: 220px; border: 1px solid var(--border-color); display: none; }
+        .menu-dropdown.show { display: block; }
+        .menu-item { padding: 14px 18px; font-size: 15px; color: var(--text-primary); cursor: pointer; border-bottom: 1px solid var(--border-color); }
+        .menu-item:last-child { border-bottom: none; }
+        .menu-item:hover { background: var(--bg-secondary); }
+        .search-bar { max-height: 0; overflow: hidden; transition: max-height 0.3s; }
+        .search-bar.active { max-height: 50px; margin-bottom: 15px; }
+        .search-bar input { width: 100%; padding: 10px 15px; border-radius: 10px; border: 1px solid var(--border-color); background: var(--bg-secondary); color: var(--text-primary); outline: none; font-size: 15px; }
+        .unread-banner { background: var(--bg-tertiary); border-radius: 10px; padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; }
+        .unread-count { font-weight: 700; color: var(--accent); }
+        .view-button { background: var(--accent); color: white; border: none; padding: 6px 15px; border-radius: 15px; font-size: 13px; cursor: pointer; }
+        .messages-container { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; background: var(--bg-primary); padding-bottom: 80px; }
+        .contacts-container { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; background: var(--bg-primary); padding-bottom: 80px; display: none; }
+        body.contacts-active .messages-container { display: none; }
+        body.contacts-active .contacts-container { display: block; }
+        body.contacts-active .fab { display: none; }
+        body.contacts-active .unread-banner { display: none; }
+        .contact-item { display: flex; align-items: center; padding: 15px 20px; border-bottom: 1px solid var(--border-color); cursor: pointer; }
+        .contact-info { margin-left: 15px; }
+        .contact-name { font-weight: 600; font-size: 16px; color: var(--text-primary); }
+        .contact-phone { font-size: 13px; color: var(--text-secondary); margin-top: 2px; }
+        .message-wrapper { position: relative; overflow: hidden; border-bottom: 1px solid var(--border-color); }
+        .delete-bg { position: absolute; top: 0; right: 0; width: 100%; height: 100%; background: var(--danger); display: flex; align-items: center; justify-content: flex-end; padding-right: 20px; color: white; font-weight: 600; z-index: 1; }
+        .message-item { display: flex; padding: 15px 20px; cursor: pointer; background: var(--bg-primary); position: relative; z-index: 2; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none !important; -webkit-tap-highlight-color: transparent; }
+        .avatar { width: 50px; height: 50px; border-radius: 50%; margin-right: 15px; display: flex; align-items: center; justify-content: center; font-weight: 600; color: #fff; font-size: 18px; flex-shrink: 0; }
+        .message-content { flex: 1; overflow: hidden; }
+        .message-header { display: flex; justify-content: space-between; margin-bottom: 5px; }
+        .sender-name { font-weight: 600; font-size: 16px; color: var(--text-primary); }
+        .timestamp { font-size: 12px; color: var(--text-secondary); }
+        .message-preview { font-size: 14px; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .unread-badge { align-self: center; background: var(--accent); color: white; font-size: 11px; font-weight: 600; border-radius: 10px; padding: 2px 7px; margin-left: 10px; }
+        .fab { position: absolute; bottom: 80px; right: 20px; width: 55px; height: 55px; background: var(--accent); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); cursor: pointer; z-index: 5; border: none; }
+        .bottom-nav { position: absolute; bottom: 0; left: 0; right: 0; height: 60px; background: var(--bg-primary); border-top: 1px solid var(--border-color); display: flex; padding-bottom: env(safe-area-inset-bottom); z-index: 6; }
+        .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-secondary); cursor: pointer; }
+        .nav-item.active { color: var(--accent); }
+        .nav-icon { font-size: 22px; margin-bottom: 3px; }
+        .nav-badge { position: absolute; top: 5px; right: 25%; background: var(--danger); color: white; font-size: 10px; border-radius: 10px; padding: 2px 6px; display: none; }
+        
+        /* Chat View */
+        .chat-view { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-secondary); z-index: 10; display: flex; flex-direction: column; transform: translateX(100%); transition: transform 0.3s; }
+        .chat-view.active { transform: translateX(0); }
+        .chat-header { display: flex; align-items: center; padding: 15px; padding-top: calc(15px + env(safe-area-inset-top)); border-bottom: 1px solid var(--border-color); background: var(--bg-primary); flex-shrink: 0; }
+        .chat-title { font-weight: 600; font-size: 17px; color: var(--text-primary); flex: 1; margin-left: 10px; }
+        .chat-body { flex: 1; padding: 20px; display: flex; flex-direction: column; gap: 10px; overflow-y: auto; -webkit-overflow-scrolling: touch; background: var(--bg-secondary); min-height: 0; }
+        .chat-bubble { max-width: 75%; padding: 10px 15px; border-radius: 20px; font-size: 15px; line-height: 1.4; color: var(--text-primary); word-wrap: break-word; }
+        .chat-bubble.received { background: var(--bubble-received); align-self: flex-start; border-bottom-left-radius: 4px; }
+        .chat-bubble.sent { background: var(--accent); color: white; align-self: flex-end; border-bottom-right-radius: 4px; }
+        .chat-input-area { display: flex; align-items: center; padding: 10px; padding-bottom: calc(10px + env(safe-area-inset-bottom)); background: var(--bg-primary); border-top: 1px solid var(--border-color); gap: 10px; flex-shrink: 0; }
+        .chat-input-area input { flex: 1; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 20px; padding: 10px 15px; font-size: 15px; outline: none; color: var(--text-primary); }
+
+        /* Modals (Simplified to prevent black screen) */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 200; display: none; align-items: flex-end; justify-content: center; }
+        .modal-overlay.active { display: flex; }
+        .compose-sheet { width: 100%; max-width: 480px; background: var(--bg-primary); border-radius: 20px 20px 0 0; padding: 20px; padding-bottom: calc(20px + env(safe-area-inset-bottom)); max-height: 90vh; overflow-y: auto; }
+        .compose-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid var(--border-color); }
+        .compose-cancel { color: var(--text-secondary); cursor: pointer; font-size: 15px; }
+        .compose-title { font-weight: 700; font-size: 17px; color: var(--text-primary); }
+        .compose-send { color: var(--accent); font-weight: 600; cursor: pointer; font-size: 15px; }
+        .compose-body input, .compose-body textarea { width: 100%; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 12px; padding: 15px; margin-bottom: 15px; color: var(--text-primary); outline: none; font-size: 16px; resize: none; }
+        .compose-body input { margin-bottom: 0; height: 50px; }
+        .compose-body textarea { height: 120px; margin-top: 15px; }
+        
+        .bg-green { background: #4CAF50; } .bg-blue { background: #2196F3; } .bg-purple { background: #9C27B0; } .bg-orange { background: #FF9800; } .bg-red { background: #FF5722; } .bg-grey { background: #607D8B; }
     </style>
 </head>
 <body>
     <div class="app-container">
-        <!-- In-App Notification Banner -->
-        <div class="notification-banner" id="notificationBanner">
-            <div class="notif-avatar bg-teal">N</div>
-            <div class="notif-content">
-                <div class="notif-title">New Sender</div>
-                <div class="notif-text">Hey! This is a newly...</div>
-            </div>
-        </div>
-
-        <!-- Main List View -->
-        <div class="main-view" id="mainView">
+        <div class="main-view">
             <div class="header">
                 <div class="header-content">
                     <div class="header-title" id="viewTitle">Messages</div>
                     <div class="header-actions">
-                        <i class="fas fa-search search-icon" id="searchToggle"></i>
-                        <i class="fas fa-ellipsis-vertical menu-icon" id="menuToggle"></i>
+                        <button class="icon-btn" id="searchToggle">🔍</button>
+                        <button class="icon-btn" id="menuToggle">⋮</button>
                     </div>
-                    
-                    <!-- Three Dots Dropdown Menu -->
                     <div class="menu-dropdown" id="menuDropdown">
-                        <div class="menu-item" id="menuSelect"><i class="fas fa-check-circle"></i> Select Messages</div>
-                        <div class="menu-item" id="menuMarkAllRead"><i class="fas fa-envelope-open"></i> Mark all as read</div>
-                        <div class="menu-item" id="menuStarred"><i class="fas fa-star"></i> Starred messages</div>
-                        <div class="menu-item" id="menuRecycleBin"><i class="fas fa-trash"></i> Recycle bin</div>
-                        <div class="menu-item" id="menuSettings"><i class="fas fa-gear"></i> Settings (Dark Mode)</div>
+                        <div class="menu-item" id="menuMarkAllRead">Mark all as read</div>
+                        <div class="menu-item" id="menuRecycleBin">🗑️ Recycle bin</div>
+                        <div class="menu-item" id="menuSettings">⚙️ Settings (Dark Mode)</div>
                     </div>
                 </div>
-                
                 <div class="search-bar" id="searchBar">
                     <input type="text" id="searchInput" placeholder="Search messages...">
                 </div>
-
                 <div class="unread-banner">
-                    <div class="unread-text">
-                        <span class="unread-count" id="totalUnread">0</span> unread messages
-                    </div>
+                    <div><span class="unread-count" id="totalUnread">0</span> unread messages</div>
                     <button class="view-button" id="viewUnreadBtn">View</button>
                 </div>
             </div>
-
             <div class="messages-container" id="messagesList"></div>
             <div class="contacts-container" id="contactsList"></div>
-
-            <div class="fab" id="newMessageBtn">
-                <i class="fas fa-pen-to-square"></i>
-            </div>
-            
-            <div class="install-fab" id="installBtn" style="display: none;">
-                <i class="fas fa-download"></i>
-            </div>
-
-            <!-- Selection Action Bar (Hidden by default) -->
-            <div class="selection-bar" id="selectionBar" style="display: none;">
-                <span id="selectedCount">0 selected</span>
-                <button class="select-all-btn" id="selectAllBtn">All</button>
-                <button class="delete-selected-btn" id="deleteSelectedBtn"><i class="fas fa-trash"></i></button>
-                <button class="cancel-selected-btn" id="cancelSelectedBtn">Cancel</button>
-            </div>
-
+            <button class="fab" id="newMessageBtn">✏️</button>
             <div class="bottom-nav">
                 <div class="nav-item active" data-view="messages">
-                    <i class="fas fa-comment nav-icon"></i>
-                    <span class="nav-label">Conversations</span>
+                    <span class="nav-icon">💬</span><span>Conversations</span>
                 </div>
                 <div class="nav-item" data-view="contacts">
-                    <i class="fas fa-address-book nav-icon"></i>
-                    <span class="nav-label">Contacts</span>
+                    <span class="nav-icon">📒</span><span>Contacts</span>
                 </div>
-                <div class="nav-badge" id="navBadge" style="display: none;">0</div>
+                <div class="nav-badge" id="navBadge">0</div>
             </div>
         </div>
 
-        <!-- Chat Detail View -->
         <div class="chat-view" id="chatView">
             <div class="chat-header">
-                <i class="fas fa-arrow-left back-btn" id="backBtn"></i>
-                <div class="chat-avatar" id="chatAvatar"></div>
+                <button class="icon-btn" id="backBtn" style="font-size: 22px;">←</button>
+                <div class="avatar bg-grey" id="chatAvatar" style="width: 35px; height: 35px; margin-right: 10px;"></div>
                 <div class="chat-title" id="chatTitle"></div>
-                <i class="fas fa-trash delete-chat-btn" onclick="deleteCurrentChat()"></i>
+                <button class="icon-btn" id="deleteChatBtn" style="color: var(--danger);">🗑️</button>
             </div>
             <div class="chat-body" id="chatBody"></div>
-            <div class="chat-input-area">
-                <i class="fas fa-plus"></i>
+            <div class="chat-input-area" id="chatInputArea">
+                <span style="font-size: 20px; color: var(--accent); cursor: pointer;">➕</span>
                 <input type="text" id="messageInput" placeholder="Text Message">
-                <i class="fas fa-paper-plane send-btn" id="sendBtn"></i>
+                <button class="icon-btn" id="sendBtn" style="font-size: 20px;">➤</button>
             </div>
         </div>
 
-        <!-- Compose New Message Modal -->
         <div class="modal-overlay" id="composeModal">
             <div class="compose-sheet">
                 <div class="compose-header">
-                    <span class="compose-cancel" id="composeCancel" onclick="closeComposeModal()">Cancel</span>
+                    <span class="compose-cancel" id="composeCancel">Cancel</span>
                     <span class="compose-title">New Message</span>
                     <span class="compose-send" id="composeSend">Send</span>
                 </div>
@@ -127,58 +156,144 @@
                 </div>
             </div>
         </div>
-
-        <!-- Recycle Bin Modal -->
-        <div class="modal-overlay" id="recycleBinModal">
-            <div class="compose-sheet" style="height: 80vh;">
-                <div class="compose-header">
-                    <span class="compose-cancel" id="closeRecycleBin">Close</span>
-                    <span class="compose-title">Recycle Bin</span>
-                    <span class="compose-send" id="emptyRecycleBinBtn" style="color: var(--danger);">Empty</span>
-                </div>
-                <div class="compose-body" id="recycleBinList" style="overflow-y: auto; padding-bottom: 20px;"></div>
-            </div>
-        </div>
-
-        <!-- Long-Press Context Menu -->
-        <div class="context-menu-overlay" id="contextMenuOverlay">
-            <div class="context-menu" id="contextMenu">
-                <div class="context-item" id="ctxMarkRead">Mark as Read</div>
-                <div class="context-item" id="ctxPin">Pin to Top</div>
-                <div class="context-item danger" id="ctxDelete">Delete</div>
-                <div class="context-item cancel" id="ctxCancel">Cancel</div>
-            </div>
-        </div>
     </div>
 
-    <script src="script.js"></script>
     <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js')
-                    .then(reg => {
-                        reg.addEventListener('updatefound', () => {
-                            const newWorker = reg.installing;
-                            newWorker.addEventListener('statechange', () => {
-                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                                    window.location.reload();
-                                }
-                            });
-                        });
-                    })
-                    .catch(err => console.error('SW Failed:', err));
-            });
+        // (Keeping JS simple and inline to prevent missing file errors)
+        const defaultMessages = [
+            { id: 1, name: "MPESA", phone: "+254 722 000 000", color: "bg-green", initial: "M", time: "9:30 AM", preview: "You have received Ksh 1,500.", unread: 3, allowReply: false, history: [{ text: "You have received Ksh 1,500.", type: "received", time: "9:30 AM" }] },
+            { id: 2, name: "Safaricom", phone: "+254 720 000 000", color: "bg-blue", initial: "S", time: "8:45 AM", preview: "Your data balance is 2.5GB.", unread: 8, allowReply: true, history: [{ text: "Your data balance is 2.5GB.", type: "received", time: "8:45 AM" }] }
+        ];
+        let messagesData = JSON.parse(localStorage.getItem('sms_app_pro')) || defaultMessages;
+        let deletedMessagesData = JSON.parse(localStorage.getItem('sms_app_deleted')) || [];
+        let activeChatId = null;
+        let showingUnreadOnly = false;
+
+        const save = () => { localStorage.setItem('sms_app_pro', JSON.stringify(messagesData)); localStorage.setItem('sms_app_deleted', JSON.stringify(deletedMessagesData)); };
+
+        const messagesList = document.getElementById('messagesList');
+        const chatView = document.getElementById('chatView');
+        const chatBody = document.getElementById('chatBody');
+        const totalUnreadEl = document.getElementById('totalUnread');
+
+        function renderMessages() {
+            let data = showingUnreadOnly ? messagesData.filter(m => m.unread > 0) : messagesData;
+            if (data.length === 0) { messagesList.innerHTML = `<div style="text-align:center; padding:40px; color:var(--text-secondary);">No messages</div>`; return; }
+            messagesList.innerHTML = data.map(msg => `
+                <div class="message-wrapper" data-id="${msg.id}">
+                    <div class="message-item" onclick="openChat(${msg.id})">
+                        <div class="avatar ${msg.color}">${msg.initial}</div>
+                        <div class="message-content">
+                            <div class="message-header"><div class="sender-name">${msg.name}</div><div class="timestamp">${msg.time}</div></div>
+                            <div class="message-preview">${msg.preview}</div>
+                        </div>
+                        ${msg.unread > 0 ? `<div class="unread-badge">${msg.unread}</div>` : ''}
+                    </div>
+                </div>
+            `).join('');
+            updateUnread();
         }
-        let deferredPrompt;
-        const installBtn = document.getElementById('installBtn');
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault(); deferredPrompt = e; if(installBtn) installBtn.style.display = 'flex';
+
+        function updateUnread() {
+            const total = messagesData.reduce((s, m) => s + m.unread, 0);
+            totalUnreadEl.textContent = total;
+            document.getElementById('navBadge').style.display = total > 0 ? 'block' : 'none';
+            document.getElementById('navBadge').textContent = total;
+        }
+
+        function openChat(id) {
+            const msg = messagesData.find(m => m.id === id);
+            activeChatId = id;
+            document.getElementById('chatTitle').textContent = msg.name;
+            document.getElementById('chatAvatar').textContent = msg.initial;
+            document.getElementById('chatAvatar').className = `avatar ${msg.color}`;
+            document.getElementById('chatAvatar').style.width = '35px';
+            document.getElementById('chatAvatar').style.height = '35px';
+            document.getElementById('chatAvatar').style.marginRight = '10px';
+            
+            document.getElementById('chatInputArea').style.display = (msg.allowReply === false) ? 'none' : 'flex';
+            if(msg.unread > 0) { msg.unread = 0; save(); }
+            
+            chatBody.innerHTML = `<div style="text-align:center; color:var(--text-secondary); font-size:12px; margin-bottom:10px;">Today</div>`;
+            msg.history.forEach(h => {
+                chatBody.innerHTML += `<div class="chat-bubble ${h.type}">${h.text}</div>`;
+            });
+            chatView.classList.add('active');
+            setTimeout(() => { chatBody.scrollTop = chatBody.scrollHeight; }, 100);
+        }
+
+        document.getElementById('sendBtn').addEventListener('click', () => {
+            const input = document.getElementById('messageInput');
+            const text = input.value.trim();
+            if(!text || activeChatId === null) return;
+            const msg = messagesData.find(m => m.id === activeChatId);
+            const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            msg.history.push({ text, type: "sent", time });
+            msg.preview = text; msg.time = "Just now"; save();
+            chatBody.innerHTML += `<div class="chat-bubble sent">${text}</div>`;
+            input.value = "";
+            setTimeout(() => { chatBody.scrollTop = chatBody.scrollHeight; }, 100);
+            setTimeout(() => {
+                chatBody.innerHTML += `<div class="chat-bubble received">Got it! Thanks for your message.</div>`;
+                msg.history.push({ text: "Got it! Thanks for your message.", type: "received", time });
+                save();
+                setTimeout(() => { chatBody.scrollTop = chatBody.scrollHeight; }, 100);
+            }, 1000);
         });
-        if(installBtn) {
-            installBtn.addEventListener('click', async () => {
-                if (deferredPrompt) { deferredPrompt.prompt(); const { outcome } = await deferredPrompt.userChoice; installBtn.style.display = 'none'; deferredPrompt = null; }
+
+        document.getElementById('backBtn').addEventListener('click', () => { chatView.classList.remove('active'); activeChatId = null; renderMessages(); });
+
+        document.getElementById('newMessageBtn').addEventListener('click', () => document.getElementById('composeModal').classList.add('active'));
+        document.getElementById('composeCancel').addEventListener('click', () => document.getElementById('composeModal').classList.remove('active'));
+        document.getElementById('composeSend').addEventListener('click', () => {
+            const sender = document.getElementById('composeSender').value.trim() || "Unknown";
+            const text = document.getElementById('composeText').value.trim();
+            if(!text) return;
+            const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            let existing = messagesData.find(m => m.name === sender);
+            if(existing) {
+                existing.unread++; existing.preview = text; existing.time = time; existing.history.push({ text, type: "received", time });
+            } else {
+                messagesData.unshift({ id: Date.now(), name: sender, phone: "Unknown", color: "bg-grey", initial: sender.charAt(0), time, preview: text, unread: 1, allowReply: true, history: [{ text, type: "received", time }] });
+            }
+            save(); renderMessages();
+            document.getElementById('composeModal').classList.remove('active');
+            document.getElementById('composeSender').value = ""; document.getElementById('composeText').value = "";
+        });
+
+        document.getElementById('menuToggle').addEventListener('click', (e) => { e.stopPropagation(); document.getElementById('menuDropdown').classList.toggle('show'); });
+        document.addEventListener('click', (e) => { if (!document.getElementById('menuDropdown').contains(e.target) && e.target.id !== 'menuToggle') document.getElementById('menuDropdown').classList.remove('show'); });
+        document.getElementById('menuSettings').addEventListener('click', () => { document.body.classList.toggle('dark-mode'); localStorage.setItem('dark', document.body.classList.contains('dark-mode')); document.getElementById('menuDropdown').classList.remove('show'); });
+        if(localStorage.getItem('dark') === 'true') document.body.classList.add('dark-mode');
+        document.getElementById('menuMarkAllRead').addEventListener('click', () => { messagesData.forEach(m => m.unread = 0); save(); renderMessages(); document.getElementById('menuDropdown').classList.remove('show'); });
+        
+        document.getElementById('viewUnreadBtn').addEventListener('click', () => {
+            showingUnreadOnly = !showingUnreadOnly;
+            document.getElementById('viewUnreadBtn').textContent = showingUnreadOnly ? "Show All" : "View";
+            renderMessages();
+        });
+
+        document.getElementById('searchToggle').addEventListener('click', () => document.getElementById('searchBar').classList.toggle('active'));
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            const val = e.target.value.toLowerCase();
+            const filtered = messagesData.filter(m => m.name.toLowerCase().includes(val) || m.preview.toLowerCase().includes(val));
+            messagesList.innerHTML = filtered.map(msg => `<div class="message-item" onclick="openChat(${msg.id})" style="display:flex; padding:15px 20px; border-bottom:1px solid var(--border-color);"><div class="avatar ${msg.color}">${msg.initial}</div><div class="message-content"><div class="message-header"><div class="sender-name">${msg.name}</div><div class="timestamp">${msg.time}</div></div><div class="message-preview">${msg.preview}</div></div></div>`).join('');
+        });
+
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', function() {
+                document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+                this.classList.add('active');
+                if(this.dataset.view === 'contacts') {
+                    document.body.classList.add('contacts-active');
+                    document.getElementById('contactsList').innerHTML = messagesData.map(m => `<div class="contact-item" onclick="openChat(${m.id})"><div class="avatar ${m.color}">${m.initial}</div><div class="contact-info"><div class="contact-name">${m.name}</div><div class="contact-phone">${m.phone}</div></div></div>`).join('');
+                } else {
+                    document.body.classList.remove('contacts-active');
+                }
             });
-        }
+        });
+
+        renderMessages();
     </script>
 </body>
 </html>
