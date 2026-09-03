@@ -1,4 +1,4 @@
-const CACHE_NAME = 'sms-simple-v35';
+const CACHE_NAME = 'sms-full-v36';
 const urlsToCache = ['./', './index.html', './manifest.json'];
 
 self.addEventListener('install', e => { self.skipWaiting(); e.waitUntil(caches.open(CACHE_NAME).then(c => c.addAll(urlsToCache))); });

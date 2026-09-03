@@ -10,20 +10,17 @@
     <meta name="theme-color" content="#007AFF">
     <link rel="manifest" href="manifest.json">
     <style>
-        * { 
-    margin: 0; padding: 0; box-sizing: border-box; 
-    /* Added specific Android/Samsung/Pixel fonts and !important to force it */
-    font-family: 'Samsung One UI', 'SamsungOne', 'Noto Sans', 'Roboto', system-ui, -apple-system, BlinkMacSystemFont, sans-serif !important; 
-}
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Samsung One UI', 'SamsungOne', 'Noto Sans', 'Roboto', system-ui, -apple-system, sans-serif !important; }
         :root { --bg-primary: #ffffff; --bg-secondary: #f5f5f5; --bg-tertiary: #e5e5ea; --text-primary: #000000; --text-secondary: #666666; --border-color: #eeeeee; --bubble-received: #e9e9eb; --accent: #007AFF; --danger: #FF3B30; }
         body.dark-mode { --bg-primary: #1c1c1e; --bg-secondary: #000000; --bg-tertiary: #2c2c2e; --text-primary: #ffffff; --text-secondary: #98989f; --border-color: #38383a; --bubble-received: #2c2c2e; }
+        html, body { height: 100%; overscroll-behavior: none; overflow-x: hidden; }
         body { background: var(--bg-secondary); color: var(--text-primary); max-width: 480px; margin: 0 auto; height: 100vh; overflow: hidden; }
         .app-container { position: relative; height: 100vh; width: 100%; max-width: 480px; margin: 0 auto; overflow: hidden; }
         .main-view { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; overflow: hidden; }
         .header { background: var(--bg-primary); padding: 15px 20px; padding-top: calc(15px + env(safe-area-inset-top)); border-bottom: 1px solid var(--border-color); flex-shrink: 0; }
         .header-content { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; position: relative; }
         .header-title { font-size: 22px; font-weight: 700; }
-        .header-actions { display: flex; gap: 20px; align-items: center; }
+        .header-actions { display: flex; gap: 15px; align-items: center; }
         .icon-btn { font-size: 20px; cursor: pointer; background: none; border: none; color: var(--accent); padding: 5px; }
         .menu-dropdown { position: absolute; top: 45px; right: 0; background: var(--bg-primary); border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); z-index: 50; width: 220px; border: 1px solid var(--border-color); display: none; }
         .menu-dropdown.show { display: block; }
@@ -48,14 +45,16 @@
         .contact-phone { font-size: 13px; color: var(--text-secondary); margin-top: 2px; }
         .message-wrapper { position: relative; overflow: hidden; border-bottom: 1px solid var(--border-color); }
         .delete-bg { position: absolute; top: 0; right: 0; width: 100%; height: 100%; background: var(--danger); display: flex; align-items: center; justify-content: flex-end; padding-right: 20px; color: white; font-weight: 600; z-index: 1; }
-        .message-item { display: flex; padding: 15px 20px; cursor: pointer; background: var(--bg-primary); position: relative; z-index: 2; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none !important; -webkit-tap-highlight-color: transparent; }
+        .mark-read-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--accent); display: flex; align-items: center; justify-content: flex-start; padding-left: 20px; color: white; font-size: 18px; z-index: 1; }
+        .message-item { display: flex; padding: 15px 20px; cursor: pointer; background: var(--bg-primary); position: relative; z-index: 2; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none !important; -webkit-tap-highlight-color: transparent; touch-action: pan-y; }
         .avatar { width: 50px; height: 50px; border-radius: 50%; margin-right: 15px; display: flex; align-items: center; justify-content: center; font-weight: 600; color: #fff; font-size: 18px; flex-shrink: 0; }
         .message-content { flex: 1; overflow: hidden; }
         .message-header { display: flex; justify-content: space-between; margin-bottom: 5px; }
-        .sender-name { font-weight: 600; font-size: 16px; color: var(--text-primary); }
+        .sender-name { font-weight: 600; font-size: 16px; color: var(--text-primary); display: flex; align-items: center; }
         .timestamp { font-size: 12px; color: var(--text-secondary); }
         .message-preview { font-size: 14px; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .unread-badge { align-self: center; background: var(--accent); color: white; font-size: 11px; font-weight: 600; border-radius: 10px; padding: 2px 7px; margin-left: 10px; }
+        .list-divider { padding: 15px 20px 5px; font-size: 12px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; background: var(--bg-primary); }
         .fab { position: absolute; bottom: 80px; right: 20px; width: 55px; height: 55px; background: var(--accent); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); cursor: pointer; z-index: 5; border: none; }
         .bottom-nav { position: absolute; bottom: 0; left: 0; right: 0; height: 60px; background: var(--bg-primary); border-top: 1px solid var(--border-color); display: flex; padding-bottom: env(safe-area-inset-bottom); z-index: 6; }
         .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-secondary); cursor: pointer; }
@@ -63,19 +62,27 @@
         .nav-icon { font-size: 22px; margin-bottom: 3px; }
         .nav-badge { position: absolute; top: 5px; right: 25%; background: var(--danger); color: white; font-size: 10px; border-radius: 10px; padding: 2px 6px; display: none; }
         
-        /* Chat View */
         .chat-view { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-secondary); z-index: 10; display: flex; flex-direction: column; transform: translateX(100%); transition: transform 0.3s; }
         .chat-view.active { transform: translateX(0); }
         .chat-header { display: flex; align-items: center; padding: 15px; padding-top: calc(15px + env(safe-area-inset-top)); border-bottom: 1px solid var(--border-color); background: var(--bg-primary); flex-shrink: 0; }
-        .chat-title { font-weight: 600; font-size: 17px; color: var(--text-primary); flex: 1; margin-left: 10px; }
+        .back-btn { font-size: 22px; color: var(--accent); cursor: pointer; margin-right: 15px; background: none; border: none; }
+        .chat-avatar { width: 35px; height: 35px; border-radius: 50%; margin-right: 10px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; }
+        .chat-title { font-weight: 600; font-size: 17px; color: var(--text-primary); flex: 1; margin-left: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .chat-body { flex: 1; padding: 20px; display: flex; flex-direction: column; gap: 10px; overflow-y: auto; -webkit-overflow-scrolling: touch; background: var(--bg-secondary); min-height: 0; }
         .chat-bubble { max-width: 75%; padding: 10px 15px; border-radius: 20px; font-size: 15px; line-height: 1.4; color: var(--text-primary); word-wrap: break-word; }
         .chat-bubble.received { background: var(--bubble-received); align-self: flex-start; border-bottom-left-radius: 4px; }
         .chat-bubble.sent { background: var(--accent); color: white; align-self: flex-end; border-bottom-right-radius: 4px; }
+        .typing-indicator { display: flex; gap: 4px; align-items: center; background: var(--bubble-received); padding: 15px; border-radius: 20px; align-self: flex-start; }
+        .typing-indicator span { width: 8px; height: 8px; background: var(--text-secondary); border-radius: 50%; animation: typingBounce 1s infinite; }
+        .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes typingBounce { 0%, 60%, 100% { transform: translateY(0); opacity: 0.5; } 30% { transform: translateY(-5px); opacity: 1; } }
         .chat-input-area { display: flex; align-items: center; padding: 10px; padding-bottom: calc(10px + env(safe-area-inset-bottom)); background: var(--bg-primary); border-top: 1px solid var(--border-color); gap: 10px; flex-shrink: 0; }
         .chat-input-area input { flex: 1; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 20px; padding: 10px 15px; font-size: 15px; outline: none; color: var(--text-primary); }
+        .chat-meta { font-size: 10px; color: var(--text-secondary); margin-top: 4px; display: flex; align-items: center; gap: 4px; }
+        .chat-bubble.sent .chat-meta { justify-content: flex-end; color: rgba(255,255,255,0.8); }
 
-        /* Modals (Simplified to prevent black screen) */
+        /* Modals (No transforms to prevent black screen) */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 200; display: none; align-items: flex-end; justify-content: center; }
         .modal-overlay.active { display: flex; }
         .compose-sheet { width: 100%; max-width: 480px; background: var(--bg-primary); border-radius: 20px 20px 0 0; padding: 20px; padding-bottom: calc(20px + env(safe-area-inset-bottom)); max-height: 90vh; overflow-y: auto; }
@@ -86,7 +93,18 @@
         .compose-body input, .compose-body textarea { width: 100%; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 12px; padding: 15px; margin-bottom: 15px; color: var(--text-primary); outline: none; font-size: 16px; resize: none; }
         .compose-body input { margin-bottom: 0; height: 50px; }
         .compose-body textarea { height: 120px; margin-top: 15px; }
-        
+        .recycle-item { display: flex; align-items: center; padding: 15px; background: var(--bg-secondary); border-radius: 10px; margin-bottom: 10px; }
+        .recycle-info { flex: 1; margin-left: 10px; }
+        .restore-btn { background: var(--accent); color: white; border: none; padding: 6px 12px; border-radius: 15px; font-size: 13px; }
+
+        .context-menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 300; display: none; align-items: center; justify-content: center; }
+        .context-menu-overlay.active { display: flex; }
+        .context-menu { background: var(--bg-primary); width: 250px; border-radius: 14px; overflow: hidden; }
+        .context-item { padding: 15px; text-align: center; border-bottom: 1px solid var(--border-color); color: var(--text-primary); cursor: pointer; }
+        .context-item:last-child { border-bottom: none; }
+        .context-item.danger { color: var(--danger); }
+        .context-item.cancel { font-weight: 600; }
+
         .bg-green { background: #4CAF50; } .bg-blue { background: #2196F3; } .bg-purple { background: #9C27B0; } .bg-orange { background: #FF9800; } .bg-red { background: #FF5722; } .bg-grey { background: #607D8B; }
     </style>
 </head>
@@ -101,7 +119,9 @@
                         <button class="icon-btn" id="menuToggle">⋮</button>
                     </div>
                     <div class="menu-dropdown" id="menuDropdown">
-                        <div class="menu-item" id="menuMarkAllRead">Mark all as read</div>
+                        <div class="menu-item" id="menuSelect">✅ Select Messages</div>
+                        <div class="menu-item" id="menuMarkAllRead">✉️ Mark all as read</div>
+                        <div class="menu-item" id="menuStarred">⭐ Starred messages</div>
                         <div class="menu-item" id="menuRecycleBin">🗑️ Recycle bin</div>
                         <div class="menu-item" id="menuSettings">⚙️ Settings (Dark Mode)</div>
                     </div>
@@ -118,22 +138,18 @@
             <div class="contacts-container" id="contactsList"></div>
             <button class="fab" id="newMessageBtn">✏️</button>
             <div class="bottom-nav">
-                <div class="nav-item active" data-view="messages">
-                    <span class="nav-icon">💬</span><span>Conversations</span>
-                </div>
-                <div class="nav-item" data-view="contacts">
-                    <span class="nav-icon">📒</span><span>Contacts</span>
-                </div>
+                <div class="nav-item active" data-view="messages"><span class="nav-icon">💬</span><span>Conversations</span></div>
+                <div class="nav-item" data-view="contacts"><span class="nav-icon">📒</span><span>Contacts</span></div>
                 <div class="nav-badge" id="navBadge">0</div>
             </div>
         </div>
 
         <div class="chat-view" id="chatView">
             <div class="chat-header">
-                <button class="icon-btn" id="backBtn" style="font-size: 22px;">←</button>
-                <div class="avatar bg-grey" id="chatAvatar" style="width: 35px; height: 35px; margin-right: 10px;"></div>
+                <button class="back-btn" id="backBtn">←</button>
+                <div class="chat-avatar bg-grey" id="chatAvatar"></div>
                 <div class="chat-title" id="chatTitle"></div>
-                <button class="icon-btn" id="deleteChatBtn" style="color: var(--danger);">🗑️</button>
+                <button class="icon-btn" id="deleteChatBtn" onclick="deleteCurrentChat()" style="color: var(--danger); font-size: 18px;">🗑️</button>
             </div>
             <div class="chat-body" id="chatBody"></div>
             <div class="chat-input-area" id="chatInputArea">
@@ -156,92 +172,125 @@
                 </div>
             </div>
         </div>
+
+        <div class="modal-overlay" id="recycleBinModal">
+            <div class="compose-sheet" style="height: 80vh;">
+                <div class="compose-header">
+                    <span class="compose-cancel" id="closeRecycleBin">Close</span>
+                    <span class="compose-title">Recycle Bin</span>
+                    <span class="compose-send" id="emptyRecycleBinBtn" style="color: var(--danger);">Empty</span>
+                </div>
+                <div class="compose-body" id="recycleBinList" style="overflow-y: auto; padding-bottom: 20px;"></div>
+            </div>
+        </div>
+
+        <div class="context-menu-overlay" id="contextMenuOverlay">
+            <div class="context-menu" id="contextMenu">
+                <div class="context-item" id="ctxMarkRead">Mark as Read</div>
+                <div class="context-item" id="ctxPin">Pin to Top</div>
+                <div class="context-item danger" id="ctxDelete">Delete</div>
+                <div class="context-item cancel" id="ctxCancel">Cancel</div>
+            </div>
+        </div>
     </div>
 
     <script>
-        // (Keeping JS simple and inline to prevent missing file errors)
+        function getFormattedDate(date = new Date()) {
+            const now = new Date();
+            const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            const target = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+            const diffDays = Math.round((today - target) / 86400000);
+            if (diffDays === 0) return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            if (diffDays === 1) return "Yesterday";
+            if (diffDays > 1 && diffDays < 7) return date.toLocaleDateString([], { weekday: 'short' });
+            return date.toLocaleDateString([], { weekday: 'short', day: 'numeric', month: 'short' });
+        }
+        const minsAgo = (m) => new Date(Date.now() - m * 60000);
+        const daysAgo = (d) => new Date(Date.now() - d * 86400000);
         const defaultMessages = [
-            { id: 1, name: "MPESA", phone: "+254 722 000 000", color: "bg-green", initial: "M", time: "9:30 AM", preview: "You have received Ksh 1,500.", unread: 3, allowReply: false, history: [{ text: "You have received Ksh 1,500.", type: "received", time: "9:30 AM" }] },
-            { id: 2, name: "Safaricom", phone: "+254 720 000 000", color: "bg-blue", initial: "S", time: "8:45 AM", preview: "Your data balance is 2.5GB.", unread: 8, allowReply: true, history: [{ text: "Your data balance is 2.5GB.", type: "received", time: "8:45 AM" }] }
+            { id: 1, name: "MPESA", phone: "+254 722 000 000", color: "bg-green", initial: "M", time: getFormattedDate(minsAgo(15)), preview: "You have received Ksh 1,500 from JOHN DOE.", unread: 3, pinned: false, allowReply: false, history: [{ text: "You have received Ksh 1,500 from JOHN DOE. New balance is 3,450.", type: "received", time: getFormattedDate(minsAgo(15)) }] },
+            { id: 2, name: "Safaricom", phone: "+254 720 000 000", color: "bg-blue", initial: "S", time: getFormattedDate(minsAgo(120)), preview: "Your data balance is 2.5GB.", unread: 8, pinned: false, allowReply: true, history: [{ text: "Your data balance is 2.5GB. Expires on 28/08/2026.", type: "received", time: getFormattedDate(minsAgo(120)) }] },
+            { id: 3, name: "Voice Mail", phone: "+254 711 000 000", color: "bg-purple", initial: "V", time: getFormattedDate(daysAgo(1)), preview: "You have 8 new voice messages.", unread: 8, pinned: false, allowReply: true, history: [{ text: "You have 8 new voice messages. Call 111 to listen.", type: "received", time: getFormattedDate(daysAgo(1)) }] },
+            { id: 4, name: "Airtel", phone: "+254 730 000 000", color: "bg-orange", initial: "A", time: getFormattedDate(daysAgo(3)), preview: "Your Airtel data balance is 1.2GB.", unread: 21, pinned: false, allowReply: true, history: [{ text: "Your Airtel data balance is 1.2GB.", type: "received", time: getFormattedDate(daysAgo(3)) }] },
+            { id: 5, name: "AirtelAlert", phone: "+254 730 111 111", color: "bg-red", initial: "A", time: getFormattedDate(daysAgo(10)), preview: "Dear customer, your account balance is Ksh 45.", unread: 12, pinned: false, allowReply: false, history: [{ text: "Dear customer, your account balance is Ksh 45.", type: "received", time: getFormattedDate(daysAgo(10)) }] },
+            { id: 6, name: "SAFARIOM", phone: "+254 700 000 000", color: "bg-grey", initial: "S", time: getFormattedDate(daysAgo(45)), preview: "Tuma Pesa: You have received Ksh 2,000.", unread: 0, pinned: false, allowReply: true, history: [{ text: "Tuma Pesa: You have received Ksh 2,000.", type: "received", time: getFormattedDate(daysAgo(45)) }] }
         ];
-        let messagesData = JSON.parse(localStorage.getItem('sms_app_pro')) || defaultMessages;
-        let deletedMessagesData = JSON.parse(localStorage.getItem('sms_app_deleted')) || [];
-        let activeChatId = null;
-        let showingUnreadOnly = false;
-
-        const save = () => { localStorage.setItem('sms_app_pro', JSON.stringify(messagesData)); localStorage.setItem('sms_app_deleted', JSON.stringify(deletedMessagesData)); };
-
         const messagesList = document.getElementById('messagesList');
         const chatView = document.getElementById('chatView');
-        const chatBody = document.getElementById('chatBody');
         const totalUnreadEl = document.getElementById('totalUnread');
+        const navBadgeEl = document.getElementById('navBadge');
+        const menuDropdown = document.getElementById('menuDropdown');
+        let activeChatId = null, contextMenuTargetId = null, showingUnreadOnly = false, selectionMode = false, showingStarredOnly = false, selectedIds = [];
+        function saveMessages() { localStorage.setItem('sms_app_pro', JSON.stringify(messagesData)); }
+        function saveDeletedMessages() { localStorage.setItem('sms_app_deleted', JSON.stringify(deletedMessagesData)); }
+        function loadMessages() {
+            const saved = localStorage.getItem('sms_app_pro');
+            if (saved) { return JSON.parse(saved).map(msg => ({ ...msg, pinned: msg.pinned || false, phone: msg.phone || "Unknown", allowReply: msg.allowReply !== undefined ? msg.allowReply : true, history: msg.history || [{ text: msg.preview, type: "received", time: msg.time }] })); }
+            return [...defaultMessages];
+        }
+        function loadDeletedMessages() { return JSON.parse(localStorage.getItem('sms_app_deleted')) || []; }
+        let messagesData = loadMessages();
+        let deletedMessagesData = loadDeletedMessages();
 
-        function renderMessages() {
-            let data = showingUnreadOnly ? messagesData.filter(m => m.unread > 0) : messagesData;
-            if (data.length === 0) { messagesList.innerHTML = `<div style="text-align:center; padding:40px; color:var(--text-secondary);">No messages</div>`; return; }
-            messagesList.innerHTML = data.map(msg => `
-                <div class="message-wrapper" data-id="${msg.id}">
-                    <div class="message-item" onclick="openChat(${msg.id})">
-                        <div class="avatar ${msg.color}">${msg.initial}</div>
-                        <div class="message-content">
-                            <div class="message-header"><div class="sender-name">${msg.name}</div><div class="timestamp">${msg.time}</div></div>
-                            <div class="message-preview">${msg.preview}</div>
-                        </div>
-                        ${msg.unread > 0 ? `<div class="unread-badge">${msg.unread}</div>` : ''}
-                    </div>
-                </div>
-            `).join('');
+        document.getElementById('menuToggle').addEventListener('click', (e) => { e.stopPropagation(); menuDropdown.classList.toggle('show'); });
+        document.addEventListener('click', (e) => { if (!menuDropdown.contains(e.target) && e.target.id !== 'menuToggle') menuDropdown.classList.remove('show'); });
+        document.getElementById('menuMarkAllRead').addEventListener('click', () => { messagesData.forEach(msg => msg.unread = 0); saveMessages(); renderMessages(); menuDropdown.classList.remove('show'); });
+        document.getElementById('menuStarred').addEventListener('click', () => { showingStarredOnly = !showingStarredOnly; document.getElementById('viewTitle').textContent = showingStarredOnly ? "Starred" : "Messages"; renderMessages(); menuDropdown.classList.remove('show'); });
+        document.getElementById('menuSettings').addEventListener('click', () => { document.body.classList.toggle('dark-mode'); localStorage.setItem('dark', document.body.classList.contains('dark-mode')); menuDropdown.classList.remove('show'); });
+        if(localStorage.getItem('dark') === 'true') document.body.classList.add('dark-mode');
+        
+        const recycleBinModal = document.getElementById('recycleBinModal');
+        document.getElementById('menuRecycleBin').addEventListener('click', () => { menuDropdown.classList.remove('show'); renderRecycleBin(); recycleBinModal.classList.add('active'); });
+        document.getElementById('closeRecycleBin').addEventListener('click', () => recycleBinModal.classList.remove('active'));
+        document.getElementById('emptyRecycleBinBtn').addEventListener('click', () => { deletedMessagesData = []; saveDeletedMessages(); renderRecycleBin(); });
+        function renderRecycleBin() { const list = document.getElementById('recycleBinList'); if (deletedMessagesData.length === 0) { list.innerHTML = `<p style="text-align:center; color:var(--text-secondary); padding:40px;">Recycle bin is empty.</p>`; return; } list.innerHTML = deletedMessagesData.map(msg => `<div class="recycle-item"><div class="avatar ${msg.color}">${msg.initial}</div><div class="recycle-info"><div class="contact-name">${msg.name}</div><div class="contact-phone" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${msg.preview}</div></div><button class="restore-btn" onclick="restoreMessage(${msg.id})">Restore</button></div>`).join(''); }
+        function restoreMessage(id) { const msg = deletedMessagesData.find(m => m.id === id); messagesData.unshift(msg); deletedMessagesData = deletedMessagesData.filter(m => m.id !== id); saveMessages(); saveDeletedMessages(); renderRecycleBin(); renderMessages(); }
+
+        const viewUnreadBtn = document.getElementById('viewUnreadBtn');
+        viewUnreadBtn.addEventListener('click', () => { showingUnreadOnly = !showingUnreadOnly; viewUnreadBtn.textContent = showingUnreadOnly ? "Show All" : "View"; renderMessages(); });
+
+        function renderMessages(filterText = "") {
+            messagesData.sort((a, b) => { if (a.pinned !== b.pinned) return b.pinned - a.pinned; if ((a.unread > 0) !== (b.unread > 0)) return (b.unread > 0) - (a.unread > 0); return 0; });
+            let baseData = messagesData;
+            if (showingUnreadOnly) baseData = baseData.filter(msg => msg.unread > 0);
+            if (showingStarredOnly) baseData = baseData.filter(msg => msg.pinned);
+            const filteredData = baseData.filter(msg => msg.name.toLowerCase().includes(filterText.toLowerCase()) || msg.preview.toLowerCase().includes(filterText.toLowerCase()));
+            if (filteredData.length === 0) { messagesList.innerHTML = `<div style="text-align:center; padding:40px; color:var(--text-secondary);">No messages</div>`; updateUnread(); return; }
+            let html = '';
+            filteredData.forEach(msg => {
+                html += `<div class="message-wrapper ${msg.pinned ? 'pinned' : ''}" data-id="${msg.id}"><div class="delete-bg">Delete</div><div class="mark-read-bg">✓</div><div class="message-item"><div class="avatar ${msg.color}">${msg.initial}</div><div class="message-content"><div class="message-header"><div class="sender-name">${msg.pinned ? '📌 ' : ''}${msg.name}</div><div class="timestamp">${msg.time}</div></div><div class="message-preview">${msg.preview}</div></div>${msg.unread > 0 ? `<div class="unread-badge">${msg.unread}</div>` : ''}</div></div>`;
+            });
+            messagesList.innerHTML = html;
+            setupMessageInteractions();
             updateUnread();
         }
+        function updateUnread() { const total = messagesData.reduce((s, m) => s + m.unread, 0); totalUnreadEl.textContent = total; navBadgeEl.style.display = total > 0 ? 'block' : 'none'; navBadgeEl.textContent = total; }
 
-        function updateUnread() {
-            const total = messagesData.reduce((s, m) => s + m.unread, 0);
-            totalUnreadEl.textContent = total;
-            document.getElementById('navBadge').style.display = total > 0 ? 'block' : 'none';
-            document.getElementById('navBadge').textContent = total;
-        }
-
-        function openChat(id) {
-            const msg = messagesData.find(m => m.id === id);
-            activeChatId = id;
-            document.getElementById('chatTitle').textContent = msg.name;
-            document.getElementById('chatAvatar').textContent = msg.initial;
-            document.getElementById('chatAvatar').className = `avatar ${msg.color}`;
-            document.getElementById('chatAvatar').style.width = '35px';
-            document.getElementById('chatAvatar').style.height = '35px';
-            document.getElementById('chatAvatar').style.marginRight = '10px';
-            
-            document.getElementById('chatInputArea').style.display = (msg.allowReply === false) ? 'none' : 'flex';
-            if(msg.unread > 0) { msg.unread = 0; save(); }
-            
-            chatBody.innerHTML = `<div style="text-align:center; color:var(--text-secondary); font-size:12px; margin-bottom:10px;">Today</div>`;
-            msg.history.forEach(h => {
-                chatBody.innerHTML += `<div class="chat-bubble ${h.type}">${h.text}</div>`;
+        function setupMessageInteractions() {
+            document.querySelectorAll('.message-wrapper').forEach(wrapper => {
+                const item = wrapper.querySelector('.message-item');
+                let startX = 0, startY = 0, currentX = 0, isDragging = false, pressTimer = null, hasLongPressed = false, hasMoved = false;
+                const startInteraction = (x, y) => { hasLongPressed = false; hasMoved = false; startX = x; startY = y; isDragging = true; item.style.transition = 'none'; pressTimer = setTimeout(() => { hasLongPressed = true; isDragging = false; const id = parseInt(wrapper.dataset.id); if (navigator.vibrate) navigator.vibrate(30); item.style.transition = 'opacity 0.3s, transform 0.3s'; item.style.opacity = '0'; item.style.transform = 'translateX(-100%)'; setTimeout(() => { deletedMessagesData.unshift(messagesData.find(m => m.id === id)); messagesData = messagesData.filter(msg => msg.id !== id); saveMessages(); saveDeletedMessages(); renderMessages(); }, 300); }, 500); };
+                const handleMove = (x, y) => { if (!isDragging) return; currentX = x - startX; const diffY = Math.abs(y - startY); if (Math.abs(currentX) > 15 || diffY > 15) { if (!hasLongPressed) { clearTimeout(pressTimer); hasMoved = true; } } if (currentX < 0) item.style.transform = `translateX(${Math.max(currentX, -100)}px)`; else if (currentX > 0) item.style.transform = `translateX(${Math.min(currentX, 80)}px)`; };
+                const endInteraction = () => { if (!isDragging) return; isDragging = false; clearTimeout(pressTimer); item.style.transition = 'transform 0.3s'; if (currentX < -50) { item.style.transform = 'translateX(-100%)'; setTimeout(() => { const id = parseInt(wrapper.dataset.id); deletedMessagesData.unshift(messagesData.find(m => m.id === id)); messagesData = messagesData.filter(msg => msg.id !== id); saveMessages(); saveDeletedMessages(); renderMessages(); }, 300); } else if (currentX > 40) { item.style.transform = 'translateX(0)'; const id = parseInt(wrapper.dataset.id); const msg = messagesData.find(m => m.id === id); msg.unread = msg.unread > 0 ? 0 : 1; saveMessages(); renderMessages(); if (navigator.vibrate) navigator.vibrate(10); } else { item.style.transform = 'translateX(0)'; } currentX = 0; };
+                item.addEventListener('click', (e) => { if (hasLongPressed || hasMoved) { e.preventDefault(); e.stopPropagation(); return; } openChat(parseInt(wrapper.dataset.id)); });
+                item.addEventListener('contextmenu', (e) => e.preventDefault());
+                item.addEventListener('mousedown', (e) => startInteraction(e.clientX, e.clientY));
+                item.addEventListener('mousemove', (e) => handleMove(e.clientX, e.clientY));
+                item.addEventListener('mouseup', endInteraction);
+                item.addEventListener('mouseleave', () => { if(isDragging) endInteraction(); });
+                item.addEventListener('touchstart', (e) => startInteraction(e.touches[0].clientX, e.touches[0].clientY), {passive: true});
+                item.addEventListener('touchmove', (e) => handleMove(e.touches[0].clientX, e.touches[0].clientY), {passive: true});
+                item.addEventListener('touchend', endInteraction);
             });
-            chatView.classList.add('active');
-            setTimeout(() => { chatBody.scrollTop = chatBody.scrollHeight; }, 100);
         }
 
-        document.getElementById('sendBtn').addEventListener('click', () => {
-            const input = document.getElementById('messageInput');
-            const text = input.value.trim();
-            if(!text || activeChatId === null) return;
-            const msg = messagesData.find(m => m.id === activeChatId);
-            const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            msg.history.push({ text, type: "sent", time });
-            msg.preview = text; msg.time = "Just now"; save();
-            chatBody.innerHTML += `<div class="chat-bubble sent">${text}</div>`;
-            input.value = "";
-            setTimeout(() => { chatBody.scrollTop = chatBody.scrollHeight; }, 100);
-            setTimeout(() => {
-                chatBody.innerHTML += `<div class="chat-bubble received">Got it! Thanks for your message.</div>`;
-                msg.history.push({ text: "Got it! Thanks for your message.", type: "received", time });
-                save();
-                setTimeout(() => { chatBody.scrollTop = chatBody.scrollHeight; }, 100);
-            }, 1000);
-        });
-
-        document.getElementById('backBtn').addEventListener('click', () => { chatView.classList.remove('active'); activeChatId = null; renderMessages(); });
+        const contextMenuOverlay = document.getElementById('contextMenuOverlay');
+        document.getElementById('ctxCancel').addEventListener('click', () => contextMenuOverlay.classList.remove('active'));
+        contextMenuOverlay.addEventListener('click', (e) => { if(e.target === contextMenuOverlay) contextMenuOverlay.classList.remove('active'); });
+        document.getElementById('ctxMarkRead').addEventListener('click', () => { const msg = messagesData.find(m => m.id === contextMenuTargetId); msg.unread = msg.unread > 0 ? 0 : 1; saveMessages(); renderMessages(); contextMenuOverlay.classList.remove('active'); });
+        document.getElementById('ctxPin').addEventListener('click', () => { const msg = messagesData.find(m => m.id === contextMenuTargetId); msg.pinned = !msg.pinned; saveMessages(); renderMessages(); contextMenuOverlay.classList.remove('active'); });
+        document.getElementById('ctxDelete').addEventListener('click', () => { deletedMessagesData.unshift(messagesData.find(m => m.id === contextMenuTargetId)); messagesData = messagesData.filter(msg => msg.id !== contextMenuTargetId); saveMessages(); saveDeletedMessages(); renderMessages(); contextMenuOverlay.classList.remove('active'); });
 
         document.getElementById('newMessageBtn').addEventListener('click', () => document.getElementById('composeModal').classList.add('active'));
         document.getElementById('composeCancel').addEventListener('click', () => document.getElementById('composeModal').classList.remove('active'));
@@ -249,51 +298,99 @@
             const sender = document.getElementById('composeSender').value.trim() || "Unknown";
             const text = document.getElementById('composeText').value.trim();
             if(!text) return;
-            const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            const time = getFormattedDate(new Date());
             let existing = messagesData.find(m => m.name === sender);
-            if(existing) {
-                existing.unread++; existing.preview = text; existing.time = time; existing.history.push({ text, type: "received", time });
-            } else {
-                messagesData.unshift({ id: Date.now(), name: sender, phone: "Unknown", color: "bg-grey", initial: sender.charAt(0), time, preview: text, unread: 1, allowReply: true, history: [{ text, type: "received", time }] });
-            }
+            if(existing) { existing.unread++; existing.preview = text; existing.time = time; existing.history.push({ text, type: "received", time }); }
+            else { messagesData.unshift({ id: Date.now(), name: sender, phone: "Unknown", color: "bg-grey", initial: sender.charAt(0), time, preview: text, unread: 1, pinned: false, allowReply: true, history: [{ text, type: "received", time }] }); }
             save(); renderMessages();
             document.getElementById('composeModal').classList.remove('active');
             document.getElementById('composeSender').value = ""; document.getElementById('composeText').value = "";
         });
 
-        document.getElementById('menuToggle').addEventListener('click', (e) => { e.stopPropagation(); document.getElementById('menuDropdown').classList.toggle('show'); });
-        document.addEventListener('click', (e) => { if (!document.getElementById('menuDropdown').contains(e.target) && e.target.id !== 'menuToggle') document.getElementById('menuDropdown').classList.remove('show'); });
-        document.getElementById('menuSettings').addEventListener('click', () => { document.body.classList.toggle('dark-mode'); localStorage.setItem('dark', document.body.classList.contains('dark-mode')); document.getElementById('menuDropdown').classList.remove('show'); });
-        if(localStorage.getItem('dark') === 'true') document.body.classList.add('dark-mode');
-        document.getElementById('menuMarkAllRead').addEventListener('click', () => { messagesData.forEach(m => m.unread = 0); save(); renderMessages(); document.getElementById('menuDropdown').classList.remove('show'); });
-        
-        document.getElementById('viewUnreadBtn').addEventListener('click', () => {
-            showingUnreadOnly = !showingUnreadOnly;
-            document.getElementById('viewUnreadBtn').textContent = showingUnreadOnly ? "Show All" : "View";
-            renderMessages();
+        const searchToggle = document.getElementById('searchToggle');
+        const searchBar = document.getElementById('searchBar');
+        const searchInput = document.getElementById('searchInput');
+        searchToggle.addEventListener('click', () => searchBar.classList.toggle('active'));
+        searchInput.addEventListener('input', (e) => { const val = e.target.value.toLowerCase(); const filtered = messagesData.filter(m => m.name.toLowerCase().includes(val) || m.preview.toLowerCase().includes(val)); if(filtered.length === 0) { messagesList.innerHTML = `<div style="text-align:center; padding:40px; color:var(--text-secondary);">No results</div>`; return; } messagesList.innerHTML = filtered.map(msg => `<div class="message-item" onclick="openChat(${msg.id})" style="display:flex; padding:15px 20px; border-bottom:1px solid var(--border-color);"><div class="avatar ${msg.color}">${msg.initial}</div><div class="message-content"><div class="message-header"><div class="sender-name">${msg.name}</div><div class="timestamp">${msg.time}</div></div><div class="message-preview">${msg.preview}</div></div></div>`).join(''); });
+
+        function renderContacts() {
+            const contactsList = document.getElementById('contactsList');
+            let html = '';
+            if ('contacts' in navigator && navigator.contacts.select) { html += `<div style="padding: 15px 20px; text-align: center;"><button class="view-button" id="pickContactsBtn" style="padding: 8px 20px; font-size: 14px;">📒 Import from Phone</button></div>`; }
+            if(messagesData.length === 0) { html += `<div style="text-align:center; padding:40px; color:var(--text-secondary);">No contacts</div>`; }
+            else { messagesData.sort((a, b) => a.name.localeCompare(b.name)); messagesData.forEach(msg => { html += `<div class="contact-item" onclick="openChat(${msg.id})"><div class="avatar ${msg.color}">${msg.initial}</div><div class="contact-info"><div class="contact-name">${msg.name}</div><div class="contact-phone">${msg.phone}</div></div></div>`; }); }
+            contactsList.innerHTML = html;
+            const pickBtn = document.getElementById('pickContactsBtn');
+            if (pickBtn) pickBtn.addEventListener('click', pickContacts);
+        }
+        async function pickContacts() {
+            try { const contacts = await navigator.contacts.select(['name', 'tel'], { multiple: true }); if (contacts.length === 0) return; contacts.forEach(c => { const name = c.name ? c.name[0] : "Unknown"; const tel = c.tel ? c.tel[0] : "No Number"; let existing = messagesData.find(m => m.name === name && m.phone === tel); if (!existing) messagesData.unshift({ id: Date.now() + Math.random(), name, phone: tel, color: "bg-grey", initial: name.charAt(0), time: "Just now", preview: "Tap to start chatting...", unread: 0, pinned: false, allowReply: true, history: [] }); }); save(); renderContacts(); } catch (err) {}
+        }
+
+        function openChat(id) {
+            const msg = messagesData.find(m => m.id === id);
+            activeChatId = id;
+            document.getElementById('chatTitle').textContent = msg.name;
+            document.getElementById('chatAvatar').textContent = msg.initial;
+            document.getElementById('chatAvatar').className = `chat-avatar ${msg.color}`;
+            document.getElementById('chatInputArea').style.display = (msg.allowReply === false) ? 'none' : 'flex';
+            if(msg.unread > 0) { msg.unread = 0; save(); }
+            const chatBody = document.getElementById('chatBody');
+            chatBody.innerHTML = `<div style="text-align:center; color:var(--text-secondary); font-size:12px; margin-bottom:10px;">Today</div>`;
+            if (msg.history.length === 0) { chatBody.innerHTML += `<div class="chat-bubble received" style="background:transparent; border:none; align-self:center; color:var(--text-secondary);">This is the beginning of your conversation with ${msg.name}.</div>`; }
+            msg.history.forEach(h => { chatBody.innerHTML += `<div class="chat-bubble ${h.type}">${h.text}<div class="chat-meta"><span>${h.time}</span>${h.type === 'sent' ? ' ✓✓' : ''}</div></div>`; });
+            chatView.classList.add('active');
+            setTimeout(() => { chatBody.scrollTop = chatBody.scrollHeight; }, 300);
+        }
+
+        function deleteCurrentChat() {
+            if (activeChatId === null) return;
+            contextMenuOverlay.classList.add('active');
+            document.getElementById('contextMenu').innerHTML = `<div class="context-item danger" onclick="confirmDeleteChat()">Delete Conversation</div><div class="context-item cancel" onclick="cancelDeleteChat()">Cancel</div>`;
+        }
+        function cancelDeleteChat() { contextMenuOverlay.classList.remove('active'); document.getElementById('contextMenu').innerHTML = `<div class="context-item" id="ctxMarkRead">Mark as Read</div><div class="context-item" id="ctxPin">Pin to Top</div><div class="context-item danger" id="ctxDelete">Delete</div><div class="context-item cancel" id="ctxCancel">Cancel</div>`; document.getElementById('ctxCancel').addEventListener('click', () => contextMenuOverlay.classList.remove('active')); }
+        function confirmDeleteChat() { contextMenuOverlay.classList.remove('active'); deletedMessagesData.unshift(messagesData.find(m => m.id === activeChatId)); messagesData = messagesData.filter(msg => msg.id !== activeChatId); save(); chatView.classList.remove('active'); activeChatId = null; renderMessages(); renderContacts(); if (navigator.vibrate) navigator.vibrate(20); }
+
+        document.getElementById('sendBtn').addEventListener('click', () => {
+            const input = document.getElementById('messageInput');
+            const text = input.value.trim();
+            if(!text || activeChatId === null) return;
+            const msg = messagesData.find(m => m.id === activeChatId);
+            const time = getFormattedDate(new Date());
+            msg.history.push({ text, type: "sent", time });
+            msg.preview = text; msg.time = "Just now"; save();
+            const chatBody = document.getElementById('chatBody');
+            chatBody.innerHTML += `<div class="chat-bubble sent">${text}<div class="chat-meta"><span>${time}</span> ✓</div></div>`;
+            input.value = "";
+            setTimeout(() => { chatBody.scrollTop = chatBody.scrollHeight; }, 100);
+            setTimeout(() => { chatBody.innerHTML += `<div class="typing-indicator"><span></span><span></span><span></span></div>`; chatBody.scrollTop = chatBody.scrollHeight; }, 500);
+            setTimeout(() => {
+                const typingEl = chatBody.querySelector('.typing-indicator'); if(typingEl) typingEl.remove();
+                const replyText = "Got it! Thanks for your message."; const replyTime = getFormattedDate(new Date());
+                msg.history.push({ text: replyText, type: "received", time: replyTime }); save();
+                chatBody.innerHTML += `<div class="chat-bubble received">${replyText}<div class="chat-meta"><span>${replyTime}</span></div></div>`;
+                setTimeout(() => { chatBody.scrollTop = chatBody.scrollHeight; }, 100);
+            }, 1500);
         });
 
-        document.getElementById('searchToggle').addEventListener('click', () => document.getElementById('searchBar').classList.toggle('active'));
-        document.getElementById('searchInput').addEventListener('input', (e) => {
-            const val = e.target.value.toLowerCase();
-            const filtered = messagesData.filter(m => m.name.toLowerCase().includes(val) || m.preview.toLowerCase().includes(val));
-            messagesList.innerHTML = filtered.map(msg => `<div class="message-item" onclick="openChat(${msg.id})" style="display:flex; padding:15px 20px; border-bottom:1px solid var(--border-color);"><div class="avatar ${msg.color}">${msg.initial}</div><div class="message-content"><div class="message-header"><div class="sender-name">${msg.name}</div><div class="timestamp">${msg.time}</div></div><div class="message-preview">${msg.preview}</div></div></div>`).join('');
-        });
-
+        document.getElementById('backBtn').addEventListener('click', () => { chatView.classList.remove('active'); activeChatId = null; renderMessages(); renderContacts(); });
         document.querySelectorAll('.nav-item').forEach(item => {
             item.addEventListener('click', function() {
                 document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
                 this.classList.add('active');
-                if(this.dataset.view === 'contacts') {
-                    document.body.classList.add('contacts-active');
-                    document.getElementById('contactsList').innerHTML = messagesData.map(m => `<div class="contact-item" onclick="openChat(${m.id})"><div class="avatar ${m.color}">${m.initial}</div><div class="contact-info"><div class="contact-name">${m.name}</div><div class="contact-phone">${m.phone}</div></div></div>`).join('');
-                } else {
-                    document.body.classList.remove('contacts-active');
-                }
+                if(this.dataset.view === 'contacts') { document.body.classList.add('contacts-active'); document.getElementById('viewTitle').textContent = "Contacts"; renderContacts(); }
+                else { document.body.classList.remove('contacts-active'); document.getElementById('viewTitle').textContent = "Messages"; renderMessages(); }
+                searchBar.classList.remove('active'); searchInput.value = "";
             });
         });
 
-        renderMessages();
+        // PWA Setup
+        let deferredPrompt; const installBtn = document.getElementById('installBtn');
+        window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; if(installBtn) installBtn.style.display = 'flex'; });
+        if(installBtn) { installBtn.addEventListener('click', async () => { if (deferredPrompt) { deferredPrompt.prompt(); deferredPrompt = null; installBtn.style.display = 'none'; } }); }
+        if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').then(reg => { reg.addEventListener('updatefound', () => { const nw = reg.installing; nw.addEventListener('statechange', () => { if (nw.state === 'installed' && navigator.serviceWorker.controller) window.location.reload(); }); }); }); }); }
+
+        renderMessages(); renderContacts();
     </script>
 </body>
 </html>
