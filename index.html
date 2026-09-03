@@ -10,97 +10,97 @@
     <meta name="theme-color" content="#007AFF">
     <link rel="manifest" href="manifest.json">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Samsung One UI', 'SamsungOne', 'Noto Sans', 'Roboto', system-ui, -apple-system, sans-serif !important; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cool Jazz', 'Roboto', sans-serif !important; font-size: 13px; }
         :root { --bg-primary: #ffffff; --bg-secondary: #f5f5f5; --bg-tertiary: #e5e5ea; --text-primary: #000000; --text-secondary: #666666; --border-color: #eeeeee; --bubble-received: #e9e9eb; --accent: #007AFF; --danger: #FF3B30; }
         body.dark-mode { --bg-primary: #1c1c1e; --bg-secondary: #000000; --bg-tertiary: #2c2c2e; --text-primary: #ffffff; --text-secondary: #98989f; --border-color: #38383a; --bubble-received: #2c2c2e; }
         html, body { height: 100%; overscroll-behavior: none; overflow-x: hidden; }
         body { background: var(--bg-secondary); color: var(--text-primary); max-width: 480px; margin: 0 auto; height: 100vh; overflow: hidden; }
         .app-container { position: relative; height: 100vh; width: 100%; max-width: 480px; margin: 0 auto; overflow: hidden; }
         .main-view { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; overflow: hidden; }
-        .header { background: var(--bg-primary); padding: 15px 20px; padding-top: calc(15px + env(safe-area-inset-top)); border-bottom: 1px solid var(--border-color); flex-shrink: 0; }
-        .header-content { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; position: relative; }
-        .header-title { font-size: 22px; font-weight: 700; }
-        .header-actions { display: flex; gap: 15px; align-items: center; }
-        .icon-btn { font-size: 20px; cursor: pointer; background: none; border: none; color: var(--accent); padding: 5px; }
-        .menu-dropdown { position: absolute; top: 45px; right: 0; background: var(--bg-primary); border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); z-index: 50; width: 220px; border: 1px solid var(--border-color); display: none; }
+        .header { background: var(--bg-primary); padding: 12px 16px; padding-top: calc(12px + env(safe-area-inset-top)); border-bottom: 1px solid var(--border-color); flex-shrink: 0; }
+        .header-content { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; position: relative; }
+        .header-title { font-size: 18px; font-weight: 700; }
+        .header-actions { display: flex; gap: 12px; align-items: center; }
+        .icon-btn { font-size: 16px; cursor: pointer; background: none; border: none; color: var(--accent); padding: 4px; }
+        .menu-dropdown { position: absolute; top: 40px; right: 0; background: var(--bg-primary); border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); z-index: 50; width: 200px; border: 1px solid var(--border-color); display: none; }
         .menu-dropdown.show { display: block; }
-        .menu-item { padding: 14px 18px; font-size: 15px; color: var(--text-primary); cursor: pointer; border-bottom: 1px solid var(--border-color); }
+        .menu-item { padding: 12px 14px; font-size: 13px; color: var(--text-primary); cursor: pointer; border-bottom: 1px solid var(--border-color); }
         .menu-item:last-child { border-bottom: none; }
         .menu-item:hover { background: var(--bg-secondary); }
         .search-bar { max-height: 0; overflow: hidden; transition: max-height 0.3s; }
-        .search-bar.active { max-height: 50px; margin-bottom: 15px; }
-        .search-bar input { width: 100%; padding: 10px 15px; border-radius: 10px; border: 1px solid var(--border-color); background: var(--bg-secondary); color: var(--text-primary); outline: none; font-size: 15px; }
-        .unread-banner { background: var(--bg-tertiary); border-radius: 10px; padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; }
-        .unread-count { font-weight: 700; color: var(--accent); }
-        .view-button { background: var(--accent); color: white; border: none; padding: 6px 15px; border-radius: 15px; font-size: 13px; cursor: pointer; }
-        .messages-container { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; background: var(--bg-primary); padding-bottom: 80px; }
-        .contacts-container { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; background: var(--bg-primary); padding-bottom: 80px; display: none; }
+        .search-bar.active { max-height: 40px; margin-bottom: 12px; }
+        .search-bar input { width: 100%; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-secondary); color: var(--text-primary); outline: none; font-size: 13px; }
+        .unread-banner { background: var(--bg-tertiary); border-radius: 8px; padding: 10px 12px; display: flex; justify-content: space-between; align-items: center; }
+        .unread-count { font-weight: 700; color: var(--accent); font-size: 13px; }
+        .view-button { background: var(--accent); color: white; border: none; padding: 5px 12px; border-radius: 12px; font-size: 12px; cursor: pointer; }
+        .messages-container { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; background: var(--bg-primary); padding-bottom: 70px; }
+        .contacts-container { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; background: var(--bg-primary); padding-bottom: 70px; display: none; }
         body.contacts-active .messages-container { display: none; }
         body.contacts-active .contacts-container { display: block; }
         body.contacts-active .fab { display: none; }
         body.contacts-active .unread-banner { display: none; }
-        .contact-item { display: flex; align-items: center; padding: 15px 20px; border-bottom: 1px solid var(--border-color); cursor: pointer; }
-        .contact-info { margin-left: 15px; }
-        .contact-name { font-weight: 600; font-size: 16px; color: var(--text-primary); }
-        .contact-phone { font-size: 13px; color: var(--text-secondary); margin-top: 2px; }
+        .contact-item { display: flex; align-items: center; padding: 12px 16px; border-bottom: 1px solid var(--border-color); cursor: pointer; }
+        .contact-info { margin-left: 12px; }
+        .contact-name { font-weight: 600; font-size: 14px; color: var(--text-primary); }
+        .contact-phone { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
         .message-wrapper { position: relative; overflow: hidden; border-bottom: 1px solid var(--border-color); }
-        .delete-bg { position: absolute; top: 0; right: 0; width: 100%; height: 100%; background: var(--danger); display: flex; align-items: center; justify-content: flex-end; padding-right: 20px; color: white; font-weight: 600; z-index: 1; }
-        .mark-read-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--accent); display: flex; align-items: center; justify-content: flex-start; padding-left: 20px; color: white; font-size: 18px; z-index: 1; }
-        .message-item { display: flex; padding: 15px 20px; cursor: pointer; background: var(--bg-primary); position: relative; z-index: 2; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none !important; -webkit-tap-highlight-color: transparent; touch-action: pan-y; }
-        .avatar { width: 50px; height: 50px; border-radius: 50%; margin-right: 15px; display: flex; align-items: center; justify-content: center; font-weight: 600; color: #fff; font-size: 18px; flex-shrink: 0; }
+        .delete-bg { position: absolute; top: 0; right: 0; width: 100%; height: 100%; background: var(--danger); display: flex; align-items: center; justify-content: flex-end; padding-right: 16px; color: white; font-weight: 600; z-index: 1; font-size: 13px; }
+        .mark-read-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--accent); display: flex; align-items: center; justify-content: flex-start; padding-left: 16px; color: white; font-size: 16px; z-index: 1; }
+        .message-item { display: flex; padding: 12px 16px; cursor: pointer; background: var(--bg-primary); position: relative; z-index: 2; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none !important; -webkit-tap-highlight-color: transparent; touch-action: pan-y; }
+        .avatar { width: 42px; height: 42px; border-radius: 50%; margin-right: 12px; display: flex; align-items: center; justify-content: center; font-weight: 600; color: #fff; font-size: 16px; flex-shrink: 0; }
         .message-content { flex: 1; overflow: hidden; }
-        .message-header { display: flex; justify-content: space-between; margin-bottom: 5px; }
-        .sender-name { font-weight: 600; font-size: 16px; color: var(--text-primary); display: flex; align-items: center; }
-        .timestamp { font-size: 12px; color: var(--text-secondary); }
-        .message-preview { font-size: 14px; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .unread-badge { align-self: center; background: var(--accent); color: white; font-size: 11px; font-weight: 600; border-radius: 10px; padding: 2px 7px; margin-left: 10px; }
-        .list-divider { padding: 15px 20px 5px; font-size: 12px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; background: var(--bg-primary); }
-        .fab { position: absolute; bottom: 80px; right: 20px; width: 55px; height: 55px; background: var(--accent); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); cursor: pointer; z-index: 5; border: none; }
-        .bottom-nav { position: absolute; bottom: 0; left: 0; right: 0; height: 60px; background: var(--bg-primary); border-top: 1px solid var(--border-color); display: flex; padding-bottom: env(safe-area-inset-bottom); z-index: 6; }
+        .message-header { display: flex; justify-content: space-between; margin-bottom: 4px; }
+        .sender-name { font-weight: 600; font-size: 14px; color: var(--text-primary); display: flex; align-items: center; }
+        .timestamp { font-size: 10px; color: var(--text-secondary); }
+        .message-preview { font-size: 12px; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .unread-badge { align-self: center; background: var(--accent); color: white; font-size: 10px; font-weight: 600; border-radius: 8px; padding: 2px 6px; margin-left: 8px; }
+        .list-divider { padding: 12px 16px 4px; font-size: 10px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; background: var(--bg-primary); }
+        .fab { position: absolute; bottom: 70px; right: 16px; width: 48px; height: 48px; background: var(--accent); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); cursor: pointer; z-index: 5; border: none; }
+        .bottom-nav { position: absolute; bottom: 0; left: 0; right: 0; height: 55px; background: var(--bg-primary); border-top: 1px solid var(--border-color); display: flex; padding-bottom: env(safe-area-inset-bottom); z-index: 6; }
         .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-secondary); cursor: pointer; }
         .nav-item.active { color: var(--accent); }
-        .nav-icon { font-size: 22px; margin-bottom: 3px; }
-        .nav-badge { position: absolute; top: 5px; right: 25%; background: var(--danger); color: white; font-size: 10px; border-radius: 10px; padding: 2px 6px; display: none; }
+        .nav-icon { font-size: 18px; margin-bottom: 2px; }
+        .nav-item span:last-child { font-size: 11px; }
+        .nav-badge { position: absolute; top: 5px; right: 25%; background: var(--danger); color: white; font-size: 9px; border-radius: 8px; padding: 2px 5px; display: none; }
         
         .chat-view { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-secondary); z-index: 10; display: flex; flex-direction: column; transform: translateX(100%); transition: transform 0.3s; }
         .chat-view.active { transform: translateX(0); }
-        .chat-header { display: flex; align-items: center; padding: 15px; padding-top: calc(15px + env(safe-area-inset-top)); border-bottom: 1px solid var(--border-color); background: var(--bg-primary); flex-shrink: 0; }
-        .back-btn { font-size: 22px; color: var(--accent); cursor: pointer; margin-right: 15px; background: none; border: none; }
-        .chat-avatar { width: 35px; height: 35px; border-radius: 50%; margin-right: 10px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; }
-        .chat-title { font-weight: 600; font-size: 17px; color: var(--text-primary); flex: 1; margin-left: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .chat-body { flex: 1; padding: 20px; display: flex; flex-direction: column; gap: 10px; overflow-y: auto; -webkit-overflow-scrolling: touch; background: var(--bg-secondary); min-height: 0; }
-        .chat-bubble { max-width: 75%; padding: 10px 15px; border-radius: 20px; font-size: 15px; line-height: 1.4; color: var(--text-primary); word-wrap: break-word; }
+        .chat-header { display: flex; align-items: center; padding: 12px; padding-top: calc(12px + env(safe-area-inset-top)); border-bottom: 1px solid var(--border-color); background: var(--bg-primary); flex-shrink: 0; }
+        .back-btn { font-size: 18px; color: var(--accent); cursor: pointer; margin-right: 12px; background: none; border: none; }
+        .chat-avatar { width: 32px; height: 32px; border-radius: 50%; margin-right: 8px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 14px; flex-shrink: 0; }
+        .chat-title { font-weight: 600; font-size: 15px; color: var(--text-primary); flex: 1; margin-left: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .chat-body { flex: 1; padding: 16px; display: flex; flex-direction: column; gap: 8px; overflow-y: auto; -webkit-overflow-scrolling: touch; background: var(--bg-secondary); min-height: 0; }
+        .chat-bubble { max-width: 75%; padding: 8px 12px; border-radius: 16px; font-size: 13px; line-height: 1.4; color: var(--text-primary); word-wrap: break-word; }
         .chat-bubble.received { background: var(--bubble-received); align-self: flex-start; border-bottom-left-radius: 4px; }
         .chat-bubble.sent { background: var(--accent); color: white; align-self: flex-end; border-bottom-right-radius: 4px; }
-        .typing-indicator { display: flex; gap: 4px; align-items: center; background: var(--bubble-received); padding: 15px; border-radius: 20px; align-self: flex-start; }
-        .typing-indicator span { width: 8px; height: 8px; background: var(--text-secondary); border-radius: 50%; animation: typingBounce 1s infinite; }
+        .typing-indicator { display: flex; gap: 4px; align-items: center; background: var(--bubble-received); padding: 12px; border-radius: 16px; align-self: flex-start; }
+        .typing-indicator span { width: 7px; height: 7px; background: var(--text-secondary); border-radius: 50%; animation: typingBounce 1s infinite; }
         .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
         .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
-        @keyframes typingBounce { 0%, 60%, 100% { transform: translateY(0); opacity: 0.5; } 30% { transform: translateY(-5px); opacity: 1; } }
-        .chat-input-area { display: flex; align-items: center; padding: 10px; padding-bottom: calc(10px + env(safe-area-inset-bottom)); background: var(--bg-primary); border-top: 1px solid var(--border-color); gap: 10px; flex-shrink: 0; }
-        .chat-input-area input { flex: 1; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 20px; padding: 10px 15px; font-size: 15px; outline: none; color: var(--text-primary); }
-        .chat-meta { font-size: 10px; color: var(--text-secondary); margin-top: 4px; display: flex; align-items: center; gap: 4px; }
+        @keyframes typingBounce { 0%, 60%, 100% { transform: translateY(0); opacity: 0.5; } 30% { transform: translateY(-4px); opacity: 1; } }
+        .chat-input-area { display: flex; align-items: center; padding: 8px; padding-bottom: calc(8px + env(safe-area-inset-bottom)); background: var(--bg-primary); border-top: 1px solid var(--border-color); gap: 8px; flex-shrink: 0; }
+        .chat-input-area input { flex: 1; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 16px; padding: 8px 12px; font-size: 13px; outline: none; color: var(--text-primary); }
+        .chat-meta { font-size: 9px; color: var(--text-secondary); margin-top: 3px; display: flex; align-items: center; gap: 3px; }
         .chat-bubble.sent .chat-meta { justify-content: flex-end; color: rgba(255,255,255,0.8); }
 
-        /* Modals (No transforms to prevent black screen) */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 200; display: none; align-items: flex-end; justify-content: center; }
         .modal-overlay.active { display: flex; }
-        .compose-sheet { width: 100%; max-width: 480px; background: var(--bg-primary); border-radius: 20px 20px 0 0; padding: 20px; padding-bottom: calc(20px + env(safe-area-inset-bottom)); max-height: 90vh; overflow-y: auto; }
-        .compose-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid var(--border-color); }
-        .compose-cancel { color: var(--text-secondary); cursor: pointer; font-size: 15px; }
-        .compose-title { font-weight: 700; font-size: 17px; color: var(--text-primary); }
-        .compose-send { color: var(--accent); font-weight: 600; cursor: pointer; font-size: 15px; }
-        .compose-body input, .compose-body textarea { width: 100%; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 12px; padding: 15px; margin-bottom: 15px; color: var(--text-primary); outline: none; font-size: 16px; resize: none; }
-        .compose-body input { margin-bottom: 0; height: 50px; }
-        .compose-body textarea { height: 120px; margin-top: 15px; }
-        .recycle-item { display: flex; align-items: center; padding: 15px; background: var(--bg-secondary); border-radius: 10px; margin-bottom: 10px; }
-        .recycle-info { flex: 1; margin-left: 10px; }
-        .restore-btn { background: var(--accent); color: white; border: none; padding: 6px 12px; border-radius: 15px; font-size: 13px; }
+        .compose-sheet { width: 100%; max-width: 480px; background: var(--bg-primary); border-radius: 16px 16px 0 0; padding: 16px; padding-bottom: calc(16px + env(safe-area-inset-bottom)); max-height: 90vh; overflow-y: auto; }
+        .compose-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border-color); }
+        .compose-cancel { color: var(--text-secondary); cursor: pointer; font-size: 13px; }
+        .compose-title { font-weight: 700; font-size: 15px; color: var(--text-primary); }
+        .compose-send { color: var(--accent); font-weight: 600; cursor: pointer; font-size: 13px; }
+        .compose-body input, .compose-body textarea { width: 100%; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 10px; padding: 12px; margin-bottom: 12px; color: var(--text-primary); outline: none; font-size: 13px; resize: none; }
+        .compose-body input { margin-bottom: 0; height: 40px; }
+        .compose-body textarea { height: 100px; margin-top: 12px; }
+        .recycle-item { display: flex; align-items: center; padding: 12px; background: var(--bg-secondary); border-radius: 8px; margin-bottom: 8px; }
+        .recycle-info { flex: 1; margin-left: 8px; }
+        .restore-btn { background: var(--accent); color: white; border: none; padding: 5px 10px; border-radius: 12px; font-size: 11px; }
 
         .context-menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 300; display: none; align-items: center; justify-content: center; }
         .context-menu-overlay.active { display: flex; }
-        .context-menu { background: var(--bg-primary); width: 250px; border-radius: 14px; overflow: hidden; }
-        .context-item { padding: 15px; text-align: center; border-bottom: 1px solid var(--border-color); color: var(--text-primary); cursor: pointer; }
+        .context-menu { background: var(--bg-primary); width: 220px; border-radius: 12px; overflow: hidden; }
+        .context-item { padding: 12px; text-align: center; border-bottom: 1px solid var(--border-color); color: var(--text-primary); cursor: pointer; font-size: 13px; }
         .context-item:last-child { border-bottom: none; }
         .context-item.danger { color: var(--danger); }
         .context-item.cancel { font-weight: 600; }
@@ -119,7 +119,6 @@
                         <button class="icon-btn" id="menuToggle">⋮</button>
                     </div>
                     <div class="menu-dropdown" id="menuDropdown">
-                        <div class="menu-item" id="menuSelect">✅ Select Messages</div>
                         <div class="menu-item" id="menuMarkAllRead">✉️ Mark all as read</div>
                         <div class="menu-item" id="menuStarred">⭐ Starred messages</div>
                         <div class="menu-item" id="menuRecycleBin">🗑️ Recycle bin</div>
@@ -149,13 +148,13 @@
                 <button class="back-btn" id="backBtn">←</button>
                 <div class="chat-avatar bg-grey" id="chatAvatar"></div>
                 <div class="chat-title" id="chatTitle"></div>
-                <button class="icon-btn" id="deleteChatBtn" onclick="deleteCurrentChat()" style="color: var(--danger); font-size: 18px;">🗑️</button>
+                <button class="icon-btn" id="deleteChatBtn" onclick="deleteCurrentChat()" style="color: var(--danger); font-size: 16px;">🗑️</button>
             </div>
             <div class="chat-body" id="chatBody"></div>
             <div class="chat-input-area" id="chatInputArea">
-                <span style="font-size: 20px; color: var(--accent); cursor: pointer;">➕</span>
+                <span style="font-size: 18px; color: var(--accent); cursor: pointer;">➕</span>
                 <input type="text" id="messageInput" placeholder="Text Message">
-                <button class="icon-btn" id="sendBtn" style="font-size: 20px;">➤</button>
+                <button class="icon-btn" id="sendBtn" style="font-size: 18px;">➤</button>
             </div>
         </div>
 
@@ -220,12 +219,25 @@
         const totalUnreadEl = document.getElementById('totalUnread');
         const navBadgeEl = document.getElementById('navBadge');
         const menuDropdown = document.getElementById('menuDropdown');
-        let activeChatId = null, contextMenuTargetId = null, showingUnreadOnly = false, selectionMode = false, showingStarredOnly = false, selectedIds = [];
+        let activeChatId = null, contextMenuTargetId = null, showingUnreadOnly = false, showingStarredOnly = false;
         function saveMessages() { localStorage.setItem('sms_app_pro', JSON.stringify(messagesData)); }
         function saveDeletedMessages() { localStorage.setItem('sms_app_deleted', JSON.stringify(deletedMessagesData)); }
+        
+        // FORCE LOCAL STORAGE CLEAR TO FIX OLD TIME & MPESA BUGS
         function loadMessages() {
+            if (localStorage.getItem('sms_app_v38') !== 'true') {
+                localStorage.removeItem('sms_app_pro');
+                localStorage.removeItem('sms_app_deleted');
+                localStorage.setItem('sms_app_v38', 'true');
+            }
             const saved = localStorage.getItem('sms_app_pro');
-            if (saved) { return JSON.parse(saved).map(msg => ({ ...msg, pinned: msg.pinned || false, phone: msg.phone || "Unknown", allowReply: msg.allowReply !== undefined ? msg.allowReply : true, history: msg.history || [{ text: msg.preview, type: "received", time: msg.time }] })); }
+            if (saved) {
+                return JSON.parse(saved).map(msg => {
+                    let allowReply = msg.allowReply !== undefined ? msg.allowReply : true;
+                    if (msg.name === "MPESA" || msg.name === "AirtelAlert") allowReply = false; // Force fix
+                    return { ...msg, pinned: msg.pinned || false, phone: msg.phone || "Unknown", allowReply, history: msg.history || [{ text: msg.preview, type: "received", time: msg.time }] };
+                });
+            }
             return [...defaultMessages];
         }
         function loadDeletedMessages() { return JSON.parse(localStorage.getItem('sms_app_deleted')) || []; }
@@ -243,7 +255,7 @@
         document.getElementById('menuRecycleBin').addEventListener('click', () => { menuDropdown.classList.remove('show'); renderRecycleBin(); recycleBinModal.classList.add('active'); });
         document.getElementById('closeRecycleBin').addEventListener('click', () => recycleBinModal.classList.remove('active'));
         document.getElementById('emptyRecycleBinBtn').addEventListener('click', () => { deletedMessagesData = []; saveDeletedMessages(); renderRecycleBin(); });
-        function renderRecycleBin() { const list = document.getElementById('recycleBinList'); if (deletedMessagesData.length === 0) { list.innerHTML = `<p style="text-align:center; color:var(--text-secondary); padding:40px;">Recycle bin is empty.</p>`; return; } list.innerHTML = deletedMessagesData.map(msg => `<div class="recycle-item"><div class="avatar ${msg.color}">${msg.initial}</div><div class="recycle-info"><div class="contact-name">${msg.name}</div><div class="contact-phone" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${msg.preview}</div></div><button class="restore-btn" onclick="restoreMessage(${msg.id})">Restore</button></div>`).join(''); }
+        function renderRecycleBin() { const list = document.getElementById('recycleBinList'); if (deletedMessagesData.length === 0) { list.innerHTML = `<p style="text-align:center; color:var(--text-secondary); padding:40px; font-size:13px;">Recycle bin is empty.</p>`; return; } list.innerHTML = deletedMessagesData.map(msg => `<div class="recycle-item"><div class="avatar ${msg.color}">${msg.initial}</div><div class="recycle-info"><div class="contact-name">${msg.name}</div><div class="contact-phone" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${msg.preview}</div></div><button class="restore-btn" onclick="restoreMessage(${msg.id})">Restore</button></div>`).join(''); }
         function restoreMessage(id) { const msg = deletedMessagesData.find(m => m.id === id); messagesData.unshift(msg); deletedMessagesData = deletedMessagesData.filter(m => m.id !== id); saveMessages(); saveDeletedMessages(); renderRecycleBin(); renderMessages(); }
 
         const viewUnreadBtn = document.getElementById('viewUnreadBtn');
@@ -255,7 +267,7 @@
             if (showingUnreadOnly) baseData = baseData.filter(msg => msg.unread > 0);
             if (showingStarredOnly) baseData = baseData.filter(msg => msg.pinned);
             const filteredData = baseData.filter(msg => msg.name.toLowerCase().includes(filterText.toLowerCase()) || msg.preview.toLowerCase().includes(filterText.toLowerCase()));
-            if (filteredData.length === 0) { messagesList.innerHTML = `<div style="text-align:center; padding:40px; color:var(--text-secondary);">No messages</div>`; updateUnread(); return; }
+            if (filteredData.length === 0) { messagesList.innerHTML = `<div style="text-align:center; padding:40px; color:var(--text-secondary); font-size:13px;">No messages</div>`; updateUnread(); return; }
             let html = '';
             filteredData.forEach(msg => {
                 html += `<div class="message-wrapper ${msg.pinned ? 'pinned' : ''}" data-id="${msg.id}"><div class="delete-bg">Delete</div><div class="mark-read-bg">✓</div><div class="message-item"><div class="avatar ${msg.color}">${msg.initial}</div><div class="message-content"><div class="message-header"><div class="sender-name">${msg.pinned ? '📌 ' : ''}${msg.name}</div><div class="timestamp">${msg.time}</div></div><div class="message-preview">${msg.preview}</div></div>${msg.unread > 0 ? `<div class="unread-badge">${msg.unread}</div>` : ''}</div></div>`;
@@ -302,7 +314,7 @@
             let existing = messagesData.find(m => m.name === sender);
             if(existing) { existing.unread++; existing.preview = text; existing.time = time; existing.history.push({ text, type: "received", time }); }
             else { messagesData.unshift({ id: Date.now(), name: sender, phone: "Unknown", color: "bg-grey", initial: sender.charAt(0), time, preview: text, unread: 1, pinned: false, allowReply: true, history: [{ text, type: "received", time }] }); }
-            save(); renderMessages();
+            saveMessages(); renderMessages();
             document.getElementById('composeModal').classList.remove('active');
             document.getElementById('composeSender').value = ""; document.getElementById('composeText').value = "";
         });
@@ -311,20 +323,20 @@
         const searchBar = document.getElementById('searchBar');
         const searchInput = document.getElementById('searchInput');
         searchToggle.addEventListener('click', () => searchBar.classList.toggle('active'));
-        searchInput.addEventListener('input', (e) => { const val = e.target.value.toLowerCase(); const filtered = messagesData.filter(m => m.name.toLowerCase().includes(val) || m.preview.toLowerCase().includes(val)); if(filtered.length === 0) { messagesList.innerHTML = `<div style="text-align:center; padding:40px; color:var(--text-secondary);">No results</div>`; return; } messagesList.innerHTML = filtered.map(msg => `<div class="message-item" onclick="openChat(${msg.id})" style="display:flex; padding:15px 20px; border-bottom:1px solid var(--border-color);"><div class="avatar ${msg.color}">${msg.initial}</div><div class="message-content"><div class="message-header"><div class="sender-name">${msg.name}</div><div class="timestamp">${msg.time}</div></div><div class="message-preview">${msg.preview}</div></div></div>`).join(''); });
+        searchInput.addEventListener('input', (e) => { const val = e.target.value.toLowerCase(); const filtered = messagesData.filter(m => m.name.toLowerCase().includes(val) || m.preview.toLowerCase().includes(val)); if(filtered.length === 0) { messagesList.innerHTML = `<div style="text-align:center; padding:40px; color:var(--text-secondary); font-size:13px;">No results</div>`; return; } messagesList.innerHTML = filtered.map(msg => `<div class="message-item" onclick="openChat(${msg.id})" style="display:flex; padding:12px 16px; border-bottom:1px solid var(--border-color);"><div class="avatar ${msg.color}">${msg.initial}</div><div class="message-content"><div class="message-header"><div class="sender-name">${msg.name}</div><div class="timestamp">${msg.time}</div></div><div class="message-preview">${msg.preview}</div></div></div>`).join(''); });
 
         function renderContacts() {
             const contactsList = document.getElementById('contactsList');
             let html = '';
-            if ('contacts' in navigator && navigator.contacts.select) { html += `<div style="padding: 15px 20px; text-align: center;"><button class="view-button" id="pickContactsBtn" style="padding: 8px 20px; font-size: 14px;">📒 Import from Phone</button></div>`; }
-            if(messagesData.length === 0) { html += `<div style="text-align:center; padding:40px; color:var(--text-secondary);">No contacts</div>`; }
+            if ('contacts' in navigator && navigator.contacts.select) { html += `<div style="padding: 12px 16px; text-align: center;"><button class="view-button" id="pickContactsBtn" style="padding: 6px 16px; font-size: 12px;">📒 Import from Phone</button></div>`; }
+            if(messagesData.length === 0) { html += `<div style="text-align:center; padding:40px; color:var(--text-secondary); font-size:13px;">No contacts</div>`; }
             else { messagesData.sort((a, b) => a.name.localeCompare(b.name)); messagesData.forEach(msg => { html += `<div class="contact-item" onclick="openChat(${msg.id})"><div class="avatar ${msg.color}">${msg.initial}</div><div class="contact-info"><div class="contact-name">${msg.name}</div><div class="contact-phone">${msg.phone}</div></div></div>`; }); }
             contactsList.innerHTML = html;
             const pickBtn = document.getElementById('pickContactsBtn');
             if (pickBtn) pickBtn.addEventListener('click', pickContacts);
         }
         async function pickContacts() {
-            try { const contacts = await navigator.contacts.select(['name', 'tel'], { multiple: true }); if (contacts.length === 0) return; contacts.forEach(c => { const name = c.name ? c.name[0] : "Unknown"; const tel = c.tel ? c.tel[0] : "No Number"; let existing = messagesData.find(m => m.name === name && m.phone === tel); if (!existing) messagesData.unshift({ id: Date.now() + Math.random(), name, phone: tel, color: "bg-grey", initial: name.charAt(0), time: "Just now", preview: "Tap to start chatting...", unread: 0, pinned: false, allowReply: true, history: [] }); }); save(); renderContacts(); } catch (err) {}
+            try { const contacts = await navigator.contacts.select(['name', 'tel'], { multiple: true }); if (contacts.length === 0) return; contacts.forEach(c => { const name = c.name ? c.name[0] : "Unknown"; const tel = c.tel ? c.tel[0] : "No Number"; let existing = messagesData.find(m => m.name === name && m.phone === tel); if (!existing) messagesData.unshift({ id: Date.now() + Math.random(), name, phone: tel, color: "bg-grey", initial: name.charAt(0), time: "Just now", preview: "Tap to start chatting...", unread: 0, pinned: false, allowReply: true, history: [] }); }); saveMessages(); renderContacts(); } catch (err) {}
         }
 
         function openChat(id) {
@@ -334,13 +346,26 @@
             document.getElementById('chatAvatar').textContent = msg.initial;
             document.getElementById('chatAvatar').className = `chat-avatar ${msg.color}`;
             document.getElementById('chatInputArea').style.display = (msg.allowReply === false) ? 'none' : 'flex';
-            if(msg.unread > 0) { msg.unread = 0; save(); }
+            if(msg.unread > 0) { msg.unread = 0; saveMessages(); }
             const chatBody = document.getElementById('chatBody');
-            chatBody.innerHTML = `<div style="text-align:center; color:var(--text-secondary); font-size:12px; margin-bottom:10px;">Today</div>`;
-            if (msg.history.length === 0) { chatBody.innerHTML += `<div class="chat-bubble received" style="background:transparent; border:none; align-self:center; color:var(--text-secondary);">This is the beginning of your conversation with ${msg.name}.</div>`; }
-            msg.history.forEach(h => { chatBody.innerHTML += `<div class="chat-bubble ${h.type}">${h.text}<div class="chat-meta"><span>${h.time}</span>${h.type === 'sent' ? ' ✓✓' : ''}</div></div>`; });
+            chatBody.innerHTML = `<div style="text-align:center; color:var(--text-secondary); font-size:10px; margin-bottom:8px;">Today</div>`;
+            
+            if (msg.history.length === 0) {
+                const emptyDiv = document.createElement('div');
+                emptyDiv.className = 'chat-bubble received';
+                emptyDiv.style.cssText = 'background:transparent; border:none; align-self:center; color:var(--text-secondary); font-size:12px;';
+                emptyDiv.textContent = `This is the beginning of your conversation with ${msg.name}.`;
+                chatBody.appendChild(emptyDiv);
+            } else {
+                msg.history.forEach(h => {
+                    const bubble = document.createElement('div');
+                    bubble.className = `chat-bubble ${h.type}`;
+                    bubble.innerHTML = `${h.text}<div class="chat-meta"><span>${h.time}</span>${h.type === 'sent' ? ' ✓✓' : ''}</div>`;
+                    chatBody.appendChild(bubble);
+                });
+            }
             chatView.classList.add('active');
-            setTimeout(() => { chatBody.scrollTop = chatBody.scrollHeight; }, 300);
+            requestAnimationFrame(() => { chatBody.scrollTop = chatBody.scrollHeight; });
         }
 
         function deleteCurrentChat() {
@@ -349,27 +374,48 @@
             document.getElementById('contextMenu').innerHTML = `<div class="context-item danger" onclick="confirmDeleteChat()">Delete Conversation</div><div class="context-item cancel" onclick="cancelDeleteChat()">Cancel</div>`;
         }
         function cancelDeleteChat() { contextMenuOverlay.classList.remove('active'); document.getElementById('contextMenu').innerHTML = `<div class="context-item" id="ctxMarkRead">Mark as Read</div><div class="context-item" id="ctxPin">Pin to Top</div><div class="context-item danger" id="ctxDelete">Delete</div><div class="context-item cancel" id="ctxCancel">Cancel</div>`; document.getElementById('ctxCancel').addEventListener('click', () => contextMenuOverlay.classList.remove('active')); }
-        function confirmDeleteChat() { contextMenuOverlay.classList.remove('active'); deletedMessagesData.unshift(messagesData.find(m => m.id === activeChatId)); messagesData = messagesData.filter(msg => msg.id !== activeChatId); save(); chatView.classList.remove('active'); activeChatId = null; renderMessages(); renderContacts(); if (navigator.vibrate) navigator.vibrate(20); }
+        function confirmDeleteChat() { contextMenuOverlay.classList.remove('active'); deletedMessagesData.unshift(messagesData.find(m => m.id === activeChatId)); messagesData = messagesData.filter(msg => msg.id !== activeChatId); saveMessages(); chatView.classList.remove('active'); activeChatId = null; renderMessages(); renderContacts(); if (navigator.vibrate) navigator.vibrate(20); }
 
         document.getElementById('sendBtn').addEventListener('click', () => {
             const input = document.getElementById('messageInput');
             const text = input.value.trim();
             if(!text || activeChatId === null) return;
             const msg = messagesData.find(m => m.id === activeChatId);
+            if (!msg) return;
             const time = getFormattedDate(new Date());
             msg.history.push({ text, type: "sent", time });
-            msg.preview = text; msg.time = "Just now"; save();
+            msg.preview = text; msg.time = "Just now"; saveMessages();
+            
             const chatBody = document.getElementById('chatBody');
-            chatBody.innerHTML += `<div class="chat-bubble sent">${text}<div class="chat-meta"><span>${time}</span> ✓</div></div>`;
+            const sentBubble = document.createElement('div');
+            sentBubble.className = 'chat-bubble sent';
+            sentBubble.innerHTML = `${text}<div class="chat-meta"><span>${time}</span> ✓</div>`;
+            chatBody.appendChild(sentBubble);
+            
             input.value = "";
-            setTimeout(() => { chatBody.scrollTop = chatBody.scrollHeight; }, 100);
-            setTimeout(() => { chatBody.innerHTML += `<div class="typing-indicator"><span></span><span></span><span></span></div>`; chatBody.scrollTop = chatBody.scrollHeight; }, 500);
+            chatBody.scrollTop = chatBody.scrollHeight; // Instant scroll
+            
+            const typingBubble = document.createElement('div');
+            typingBubble.className = 'typing-indicator';
+            typingBubble.innerHTML = '<span></span><span></span><span></span>';
+            
+            setTimeout(() => { 
+                chatBody.appendChild(typingBubble); 
+                chatBody.scrollTop = chatBody.scrollHeight; 
+            }, 500);
+            
             setTimeout(() => {
-                const typingEl = chatBody.querySelector('.typing-indicator'); if(typingEl) typingEl.remove();
-                const replyText = "Got it! Thanks for your message."; const replyTime = getFormattedDate(new Date());
-                msg.history.push({ text: replyText, type: "received", time: replyTime }); save();
-                chatBody.innerHTML += `<div class="chat-bubble received">${replyText}<div class="chat-meta"><span>${replyTime}</span></div></div>`;
-                setTimeout(() => { chatBody.scrollTop = chatBody.scrollHeight; }, 100);
+                typingBubble.remove();
+                const replyText = "Got it! Thanks for your message."; 
+                const replyTime = getFormattedDate(new Date());
+                msg.history.push({ text: replyText, type: "received", time: replyTime }); 
+                saveMessages();
+                
+                const replyBubble = document.createElement('div');
+                replyBubble.className = 'chat-bubble received';
+                replyBubble.innerHTML = `${replyText}<div class="chat-meta"><span>${replyTime}</span></div>`;
+                chatBody.appendChild(replyBubble);
+                chatBody.scrollTop = chatBody.scrollHeight;
             }, 1500);
         });
 
@@ -384,7 +430,6 @@
             });
         });
 
-        // PWA Setup
         let deferredPrompt; const installBtn = document.getElementById('installBtn');
         window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; if(installBtn) installBtn.style.display = 'flex'; });
         if(installBtn) { installBtn.addEventListener('click', async () => { if (deferredPrompt) { deferredPrompt.prompt(); deferredPrompt = null; installBtn.style.display = 'none'; } }); }
