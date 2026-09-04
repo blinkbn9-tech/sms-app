@@ -211,25 +211,48 @@
             "AirtelAlert": { color: "bg-red", initial: "A" }
         };
 
-        function getFormattedDate(date = new Date()) {
+        // --- NEW: LINKIFY FUNCTION ---
+        function linkify(text) {
+            if (!text) return "";
+            const urlRegex = /(https?:\/\/[^\s]+)/g;
+            return text.replace(urlRegex, function(url) {
+                return `<a href="${url}" target="_blank" style="color: var(--accent); text-decoration: underline; font-weight: 600;">${url}</a>`;
+            });
+        }
+
+        // --- SMART TIME FORMATTERS ---
+        function formatTime(ts) { return new Date(ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); }
+        function formatDateDivider(ts) {
             const now = new Date();
             const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-            const target = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+            const target = new Date(new Date(ts).getFullYear(), new Date(ts).getMonth(), new Date(ts).getDate());
             const diffDays = Math.round((today - target) / 86400000);
-            if (diffDays === 0) return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            if (diffDays === 0) return "Today";
             if (diffDays === 1) return "Yesterday";
-            if (diffDays > 1 && diffDays < 7) return date.toLocaleDateString([], { weekday: 'short' });
-            return date.toLocaleDateString([], { weekday: 'short', day: 'numeric', month: 'short' });
+            if (diffDays > 1 && diffDays < 7) return new Date(ts).toLocaleDateString([], { weekday: 'long' });
+            return new Date(ts).toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' });
         }
-        const minsAgo = (m) => new Date(Date.now() - m * 60000);
-        const daysAgo = (d) => new Date(Date.now() - d * 86400000);
+        function formatListTime(ts) {
+            const now = new Date();
+            const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            const target = new Date(new Date(ts).getFullYear(), new Date(ts).getMonth(), new Date(ts).getDate());
+            const diffDays = Math.round((today - target) / 86400000);
+            if (diffDays === 0) return formatTime(ts);
+            if (diffDays === 1) return "Yesterday";
+            if (diffDays > 1 && diffDays < 7) return new Date(ts).toLocaleDateString([], { weekday: 'short' });
+            return new Date(ts).toLocaleDateString([], { weekday: 'short', day: 'numeric', month: 'short' });
+        }
+
+        const minsAgo = (m) => Date.now() - m * 60000;
+        const daysAgo = (d) => Date.now() - d * 86400000;
+        
         const defaultMessages = [
-            { id: 1, name: "MPESA", phone: "+254 722 000 000", color: "bg-green", initial: "M", time: getFormattedDate(minsAgo(15)), preview: "You have received Ksh 1,500 from JOHN DOE.", unread: 3, pinned: false, allowReply: false, isContactOnly: false, history: [{ text: "You have received Ksh 1,500 from JOHN DOE. New balance is 3,450.", type: "received", time: getFormattedDate(minsAgo(15)) }] },
-            { id: 2, name: "Safaricom", phone: "+254 720 000 000", color: "bg-blue", initial: "S", time: getFormattedDate(minsAgo(120)), preview: "Your data balance is 2.5GB.", unread: 8, pinned: false, allowReply: false, isContactOnly: false, history: [{ text: "Your data balance is 2.5GB. Expires on 28/08/2026.", type: "received", time: getFormattedDate(minsAgo(120)) }] },
-            { id: 3, name: "Voice Mail", phone: "+254 711 000 000", color: "bg-purple", initial: "V", time: getFormattedDate(daysAgo(1)), preview: "You have 8 new voice messages.", unread: 8, pinned: false, allowReply: false, isContactOnly: false, history: [{ text: "You have 8 new voice messages. Call 111 to listen.", type: "received", time: getFormattedDate(daysAgo(1)) }] },
-            { id: 4, name: "Airtel", phone: "+254 730 000 000", color: "bg-orange", initial: "A", time: getFormattedDate(daysAgo(3)), preview: "Your Airtel data balance is 1.2GB.", unread: 21, pinned: false, allowReply: false, isContactOnly: false, history: [{ text: "Your Airtel data balance is 1.2GB.", type: "received", time: getFormattedDate(daysAgo(3)) }] },
-            { id: 5, name: "AirtelAlert", phone: "+254 730 111 111", color: "bg-red", initial: "A", time: getFormattedDate(daysAgo(10)), preview: "Dear customer, your account balance is Ksh 45.", unread: 12, pinned: false, allowReply: false, isContactOnly: false, history: [{ text: "Dear customer, your account balance is Ksh 45.", type: "received", time: getFormattedDate(daysAgo(10)) }] },
-            { id: 6, name: "SAFARICOM", phone: "+254 700 000 000", color: "bg-grey", initial: "S", time: getFormattedDate(daysAgo(45)), preview: "Tuma Pesa: You have received Ksh 2,000.", unread: 0, pinned: false, allowReply: true, isContactOnly: false, history: [{ text: "Tuma Pesa: You have received Ksh 2,000.", type: "received", time: getFormattedDate(daysAgo(45)) }] }
+            { id: 1, name: "MPESA", phone: "+254 722 000 000", color: "bg-green", initial: "M", timestamp: minsAgo(15), preview: "You have received Ksh 1,500 from JOHN DOE.", unread: 3, pinned: false, allowReply: false, isContactOnly: false, history: [{ text: "You have received Ksh 1,500 from JOHN DOE. New balance is 3,450.", type: "received", timestamp: minsAgo(15) }] },
+            { id: 2, name: "Safaricom", phone: "+254 720 000 000", color: "bg-blue", initial: "S", timestamp: minsAgo(120), preview: "Your data balance is 2.5GB.", unread: 8, pinned: false, allowReply: false, isContactOnly: false, history: [{ text: "Your data balance is 2.5GB. Check usage here: https://saf.cx/kWQpy", type: "received", timestamp: minsAgo(120) }] },
+            { id: 3, name: "Voice Mail", phone: "+254 711 000 000", color: "bg-purple", initial: "V", timestamp: daysAgo(1), preview: "You have 8 new voice messages.", unread: 8, pinned: false, allowReply: false, isContactOnly: false, history: [{ text: "You have 8 new voice messages. Call 111 to listen.", type: "received", timestamp: daysAgo(1) }] },
+            { id: 4, name: "Airtel", phone: "+254 730 000 000", color: "bg-orange", initial: "A", timestamp: daysAgo(3), preview: "Your Airtel data balance is 1.2GB.", unread: 21, pinned: false, allowReply: false, isContactOnly: false, history: [{ text: "Your Airtel data balance is 1.2GB.", type: "received", timestamp: daysAgo(3) }] },
+            { id: 5, name: "AirtelAlert", phone: "+254 730 111 111", color: "bg-red", initial: "A", timestamp: daysAgo(10), preview: "Dear customer, your account balance is Ksh 45.", unread: 12, pinned: false, allowReply: false, isContactOnly: false, history: [{ text: "Dear customer, your account balance is Ksh 45.", type: "received", timestamp: daysAgo(10) }] },
+            { id: 6, name: "SAFARICOM", phone: "+254 700 000 000", color: "bg-grey", initial: "S", timestamp: daysAgo(45), preview: "Tuma Pesa: You have received Ksh 2,000.", unread: 0, pinned: false, allowReply: true, isContactOnly: false, history: [{ text: "Tuma Pesa: You have received Ksh 2,000.", type: "received", timestamp: daysAgo(45) }] }
         ];
         const messagesList = document.getElementById('messagesList');
         const chatView = document.getElementById('chatView');
@@ -241,10 +264,10 @@
         function saveDeletedMessages() { localStorage.setItem('sms_app_deleted', JSON.stringify(deletedMessagesData)); }
         
         function loadMessages() {
-            if (localStorage.getItem('sms_app_v42') !== 'true') {
+            if (localStorage.getItem('sms_app_v44') !== 'true') {
                 localStorage.removeItem('sms_app_pro');
                 localStorage.removeItem('sms_app_deleted');
-                localStorage.setItem('sms_app_v42', 'true');
+                localStorage.setItem('sms_app_v44', 'true');
             }
             const saved = localStorage.getItem('sms_app_pro');
             const noReplyNames = Object.keys(providerData);
@@ -253,8 +276,10 @@
                     let allowReply = msg.allowReply !== undefined ? msg.allowReply : true;
                     if (noReplyNames.includes(msg.name)) allowReply = false;
                     let isContactOnly = msg.isContactOnly !== undefined ? msg.isContactOnly : false;
-                    if (msg.history && msg.history.length > 0) isContactOnly = false; // Fix for old data
-                    return { ...msg, pinned: msg.pinned || false, phone: msg.phone || "Unknown", allowReply, isContactOnly, history: msg.history || [{ text: msg.preview, type: "received", time: msg.time }] };
+                    if (msg.history && msg.history.length > 0) isContactOnly = false;
+                    let timestamp = msg.timestamp || (msg.time ? new Date(msg.time).getTime() : Date.now());
+                    let history = (msg.history || [{ text: msg.preview, type: "received", time: msg.time }]).map(h => ({ ...h, timestamp: h.timestamp || (h.time ? new Date(h.time).getTime() : Date.now()) }));
+                    return { ...msg, pinned: msg.pinned || false, phone: msg.phone || "Unknown", allowReply, isContactOnly, timestamp, history };
                 });
             }
             return [...defaultMessages];
@@ -274,15 +299,14 @@
         document.getElementById('menuRecycleBin').addEventListener('click', () => { menuDropdown.classList.remove('show'); renderRecycleBin(); recycleBinModal.classList.add('active'); });
         document.getElementById('closeRecycleBin').addEventListener('click', () => recycleBinModal.classList.remove('active'));
         document.getElementById('emptyRecycleBinBtn').addEventListener('click', () => { deletedMessagesData = []; saveDeletedMessages(); renderRecycleBin(); });
-        function renderRecycleBin() { const list = document.getElementById('recycleBinList'); if (deletedMessagesData.length === 0) { list.innerHTML = `<p style="text-align:center; color:var(--text-secondary); padding:40px; font-size:13px;">Recycle bin is empty.</p>`; return; } list.innerHTML = deletedMessagesData.map(msg => `<div class="recycle-item"><div class="avatar ${msg.color}">${msg.color === 'bg-personal' ? personIconSVG : msg.initial}</div><div class="recycle-info"><div class="contact-name">${msg.name}</div><div class="contact-phone" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${msg.preview}</div></div><button class="restore-btn" onclick="restoreMessage(${msg.id})">Restore</button></div>`).join(''); }
+        function renderRecycleBin() { const list = document.getElementById('recycleBinList'); if (deletedMessagesData.length === 0) { list.innerHTML = `<p style="text-align:center; color:var(--text-secondary); padding:40px; font-size:13px;">Recycle bin is empty.</p>`; return; } list.innerHTML = deletedMessagesData.map(msg => `<div class="recycle-item"><div class="avatar ${msg.color}">${msg.color === 'bg-personal' ? personIconSVG : msg.initial}</div><div class="recycle-info"><div class="contact-name">${msg.name}</div><div class="contact-phone" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${linkify(msg.preview)}</div></div><button class="restore-btn" onclick="restoreMessage(${msg.id})">Restore</button></div>`).join(''); }
         function restoreMessage(id) { const msg = deletedMessagesData.find(m => m.id === id); messagesData.unshift(msg); deletedMessagesData = deletedMessagesData.filter(m => m.id !== id); saveMessages(); saveDeletedMessages(); renderRecycleBin(); renderMessages(); }
 
         const viewUnreadBtn = document.getElementById('viewUnreadBtn');
         viewUnreadBtn.addEventListener('click', () => { showingUnreadOnly = !showingUnreadOnly; viewUnreadBtn.textContent = showingUnreadOnly ? "Show All" : "View"; renderMessages(); });
 
         function renderMessages(filterText = "") {
-            messagesData.sort((a, b) => { if (a.pinned !== b.pinned) return b.pinned - a.pinned; if ((a.unread > 0) !== (b.unread > 0)) return (b.unread > 0) - (a.unread > 0); return 0; });
-            // FILTER OUT CONTACTS THAT HAVE NO MESSAGES YET
+            messagesData.sort((a, b) => { if (a.pinned !== b.pinned) return b.pinned - a.pinned; return b.timestamp - a.timestamp; });
             let baseData = messagesData.filter(m => !m.isContactOnly);
             if (showingUnreadOnly) baseData = baseData.filter(msg => msg.unread > 0);
             if (showingStarredOnly) baseData = baseData.filter(msg => msg.pinned);
@@ -291,7 +315,7 @@
             let html = '';
             filteredData.forEach(msg => {
                 const avatarContent = msg.color === 'bg-personal' ? personIconSVG : msg.initial;
-                html += `<div class="message-wrapper ${msg.pinned ? 'pinned' : ''}" data-id="${msg.id}"><div class="delete-bg">Delete</div><div class="mark-read-bg">✓</div><div class="message-item"><div class="avatar ${msg.color}">${avatarContent}</div><div class="message-content"><div class="message-header"><div class="sender-name">${msg.pinned ? '📌 ' : ''}${msg.name}</div><div class="timestamp">${msg.time}</div></div><div class="message-preview">${msg.preview}</div></div>${msg.unread > 0 ? `<div class="unread-badge">${msg.unread}</div>` : ''}</div></div>`;
+                html += `<div class="message-wrapper ${msg.pinned ? 'pinned' : ''}" data-id="${msg.id}"><div class="delete-bg">Delete</div><div class="mark-read-bg">✓</div><div class="message-item"><div class="avatar ${msg.color}">${avatarContent}</div><div class="message-content"><div class="message-header"><div class="sender-name">${msg.pinned ? '📌 ' : ''}${msg.name}</div><div class="timestamp">${formatListTime(msg.timestamp)}</div></div><div class="message-preview">${linkify(msg.preview)}</div></div>${msg.unread > 0 ? `<div class="unread-badge">${msg.unread}</div>` : ''}</div></div>`;
             });
             messagesList.innerHTML = html;
             setupMessageInteractions();
@@ -331,16 +355,16 @@
             const sender = document.getElementById('composeSender').value.trim() || "Unknown";
             const text = document.getElementById('composeText').value.trim();
             if(!text) return;
-            const time = getFormattedDate(new Date());
+            const ts = Date.now();
             let existing = messagesData.find(m => m.name === sender);
             if(existing) { 
-                existing.unread++; existing.preview = text; existing.time = time; existing.isContactOnly = false; existing.history.push({ text, type: "received", time }); 
+                existing.unread++; existing.preview = text; existing.timestamp = ts; existing.isContactOnly = false; existing.history.push({ text, type: "received", timestamp: ts }); 
             } else {
                 let isProvider = Object.keys(providerData).includes(sender);
                 if (isProvider) {
-                    messagesData.unshift({ id: Date.now(), name: sender, phone: "Unknown", color: providerData[sender].color, initial: providerData[sender].initial, time, preview: text, unread: 1, pinned: false, allowReply: false, isContactOnly: false, history: [{ text, type: "received", time }] });
+                    messagesData.unshift({ id: Date.now(), name: sender, phone: "Unknown", color: providerData[sender].color, initial: providerData[sender].initial, timestamp: ts, preview: text, unread: 1, pinned: false, allowReply: false, isContactOnly: false, history: [{ text, type: "received", timestamp: ts }] });
                 } else {
-                    messagesData.unshift({ id: Date.now(), name: sender, phone: "Unknown", color: "bg-personal", initial: "", time, preview: text, unread: 1, pinned: false, allowReply: true, isContactOnly: false, history: [{ text, type: "received", time }] });
+                    messagesData.unshift({ id: Date.now(), name: sender, phone: "Unknown", color: "bg-personal", initial: "", timestamp: ts, preview: text, unread: 1, pinned: false, allowReply: true, isContactOnly: false, history: [{ text, type: "received", timestamp: ts }] });
                 }
             }
             saveMessages(); renderMessages();
@@ -352,7 +376,7 @@
         const searchBar = document.getElementById('searchBar');
         const searchInput = document.getElementById('searchInput');
         searchToggle.addEventListener('click', () => searchBar.classList.toggle('active'));
-        searchInput.addEventListener('input', (e) => { const val = e.target.value.toLowerCase(); const filtered = messagesData.filter(m => !m.isContactOnly && (m.name.toLowerCase().includes(val) || m.preview.toLowerCase().includes(val))); if(filtered.length === 0) { messagesList.innerHTML = `<div style="text-align:center; padding:40px; color:var(--text-secondary); font-size:13px;">No results</div>`; return; } messagesList.innerHTML = filtered.map(msg => { const av = msg.color === 'bg-personal' ? personIconSVG : msg.initial; return `<div class="message-item" onclick="openChat(${msg.id})" style="display:flex; padding:12px 16px; border-bottom:1px solid var(--border-color);"><div class="avatar ${msg.color}">${av}</div><div class="message-content"><div class="message-header"><div class="sender-name">${msg.name}</div><div class="timestamp">${msg.time}</div></div><div class="message-preview">${msg.preview}</div></div></div>`; }).join(''); });
+        searchInput.addEventListener('input', (e) => { const val = e.target.value.toLowerCase(); const filtered = messagesData.filter(m => !m.isContactOnly && (m.name.toLowerCase().includes(val) || m.preview.toLowerCase().includes(val))); if(filtered.length === 0) { messagesList.innerHTML = `<div style="text-align:center; padding:40px; color:var(--text-secondary); font-size:13px;">No results</div>`; return; } messagesList.innerHTML = filtered.map(msg => { const av = msg.color === 'bg-personal' ? personIconSVG : msg.initial; return `<div class="message-item" onclick="openChat(${msg.id})" style="display:flex; padding:12px 16px; border-bottom:1px solid var(--border-color);"><div class="avatar ${msg.color}">${av}</div><div class="message-content"><div class="message-header"><div class="sender-name">${msg.name}</div><div class="timestamp">${formatListTime(msg.timestamp)}</div></div><div class="message-preview">${linkify(msg.preview)}</div></div></div>`; }).join(''); });
 
         function renderContacts() {
             const contactsList = document.getElementById('contactsList');
@@ -365,7 +389,7 @@
             if (pickBtn) pickBtn.addEventListener('click', pickContacts);
         }
         async function pickContacts() {
-            try { const contacts = await navigator.contacts.select(['name', 'tel'], { multiple: true }); if (contacts.length === 0) return; contacts.forEach(c => { const name = c.name ? c.name[0] : "Unknown"; const tel = c.tel ? c.tel[0] : "No Number"; let existing = messagesData.find(m => m.name === name && m.phone === tel); if (!existing) messagesData.unshift({ id: Date.now() + Math.random(), name, phone: tel, color: "bg-personal", initial: "", time: "Just now", preview: "Tap to start chatting...", unread: 0, pinned: false, allowReply: true, isContactOnly: true, history: [] }); }); saveMessages(); renderContacts(); } catch (err) {}
+            try { const contacts = await navigator.contacts.select(['name', 'tel'], { multiple: true }); if (contacts.length === 0) return; contacts.forEach(c => { const name = c.name ? c.name[0] : "Unknown"; const tel = c.tel ? c.tel[0] : "No Number"; let existing = messagesData.find(m => m.name === name && m.phone === tel); if (!existing) messagesData.unshift({ id: Date.now() + Math.random(), name, phone: tel, color: "bg-personal", initial: "", timestamp: Date.now(), preview: "Tap to start chatting...", unread: 0, pinned: false, allowReply: true, isContactOnly: true, history: [] }); }); saveMessages(); renderContacts(); } catch (err) {}
         }
 
         function openChat(id) {
@@ -378,7 +402,7 @@
             document.getElementById('chatInputArea').style.display = (msg.allowReply === false) ? 'none' : 'flex';
             if(msg.unread > 0) { msg.unread = 0; saveMessages(); }
             const chatBody = document.getElementById('chatBody');
-            chatBody.innerHTML = `<div style="text-align:center; color:var(--text-secondary); font-size:10px; margin-bottom:8px;">Today</div>`;
+            chatBody.innerHTML = '';
             
             if (msg.history.length === 0) {
                 const emptyDiv = document.createElement('div');
@@ -387,10 +411,19 @@
                 emptyDiv.textContent = `This is the beginning of your conversation with ${msg.name}.`;
                 chatBody.appendChild(emptyDiv);
             } else {
+                let lastDateStr = "";
                 msg.history.forEach(h => {
+                    const dateStr = formatDateDivider(h.timestamp);
+                    if (dateStr !== lastDateStr) {
+                        const divider = document.createElement('div');
+                        divider.style.cssText = 'text-align:center; color:var(--text-secondary); font-size:10px; margin:10px 0;';
+                        divider.textContent = dateStr;
+                        chatBody.appendChild(divider);
+                        lastDateStr = dateStr;
+                    }
                     const bubble = document.createElement('div');
                     bubble.className = `chat-bubble ${h.type}`;
-                    bubble.innerHTML = `${h.text}<div class="chat-meta"><span>${h.time}</span>${h.type === 'sent' ? ' ✓✓' : ''}</div>`;
+                    bubble.innerHTML = `${linkify(h.text)}<div class="chat-meta"><span>${formatTime(h.timestamp)}</span>${h.type === 'sent' ? ' ✓✓' : ''}</div>`;
                     chatBody.appendChild(bubble);
                 });
             }
@@ -412,14 +445,14 @@
             if(!text || activeChatId === null) return;
             const msg = messagesData.find(m => m.id === activeChatId);
             if (!msg) return;
-            const time = getFormattedDate(new Date());
-            msg.isContactOnly = false; // Move to messages list
-            msg.history.push({ text, type: "sent", time });
-            msg.preview = text; msg.time = "Just now"; saveMessages();
+            const ts = Date.now();
+            msg.isContactOnly = false; 
+            msg.history.push({ text, type: "sent", timestamp: ts });
+            msg.preview = text; msg.timestamp = ts; saveMessages();
             const chatBody = document.getElementById('chatBody');
             const sentBubble = document.createElement('div');
             sentBubble.className = 'chat-bubble sent';
-            sentBubble.innerHTML = `${text}<div class="chat-meta"><span>${time}</span> ✓</div>`;
+            sentBubble.innerHTML = `${linkify(text)}<div class="chat-meta"><span>${formatTime(ts)}</span> ✓</div>`;
             chatBody.appendChild(sentBubble);
             input.value = "";
             chatBody.scrollTop = chatBody.scrollHeight;
@@ -429,11 +462,11 @@
             setTimeout(() => { chatBody.appendChild(typingBubble); chatBody.scrollTop = chatBody.scrollHeight; }, 500);
             setTimeout(() => {
                 typingBubble.remove();
-                const replyText = "Got it! Thanks for your message."; const replyTime = getFormattedDate(new Date());
-                msg.history.push({ text: replyText, type: "received", time: replyTime }); saveMessages();
+                const replyText = "Got it! Thanks for your message."; const replyTs = Date.now();
+                msg.history.push({ text: replyText, type: "received", timestamp: replyTs }); saveMessages();
                 const replyBubble = document.createElement('div');
                 replyBubble.className = 'chat-bubble received';
-                replyBubble.innerHTML = `${replyText}<div class="chat-meta"><span>${replyTime}</span></div>`;
+                replyBubble.innerHTML = `${linkify(replyText)}<div class="chat-meta"><span>${formatTime(replyTs)}</span></div>`;
                 chatBody.appendChild(replyBubble);
                 chatBody.scrollTop = chatBody.scrollHeight;
             }, 1500);

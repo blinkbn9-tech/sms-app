@@ -1,4 +1,4 @@
-const CACHE_NAME = 'sms-font-v43';
+const CACHE_NAME = 'sms-font-v44';
 const urlsToCache = [
   './',
   './index.html',
