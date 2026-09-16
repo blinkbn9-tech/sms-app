@@ -78,7 +78,9 @@
         .chat-avatar { width: 32px; height: 32px; border-radius: 50%; margin-right: 8px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 14px; flex-shrink: 0; }
         .chat-title { font-weight: 600; font-size: 15px; color: var(--text-primary); flex: 1; margin-left: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .chat-body { flex: 1; padding: 16px; display: flex; flex-direction: column; gap: 8px; overflow-y: auto; -webkit-overflow-scrolling: touch; background: var(--bg-secondary); min-height: 0; }
-        .chat-bubble { max-width: 75%; padding: 8px 12px; border-radius: 16px; font-size: 13px; line-height: 1.4; color: var(--text-primary); word-wrap: break-word; }
+        
+        /* Added user-select none to bubbles to prevent highlighting whole bubble on long press */
+        .chat-bubble { max-width: 75%; padding: 8px 12px; border-radius: 16px; font-size: 13px; line-height: 1.4; color: var(--text-primary); word-wrap: break-word; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none !important; -webkit-tap-highlight-color: transparent; }
         .chat-bubble.received { background: var(--bubble-received); align-self: flex-start; border-bottom-left-radius: 4px; }
         .chat-bubble.sent { background: var(--accent); color: white; align-self: flex-end; border-bottom-right-radius: 4px; }
         .typing-indicator { display: flex; gap: 4px; align-items: center; background: var(--bubble-received); padding: 12px; border-radius: 16px; align-self: flex-start; }
@@ -192,12 +194,7 @@
         </div>
 
         <div class="context-menu-overlay" id="contextMenuOverlay">
-            <div class="context-menu" id="contextMenu">
-                <div class="context-item" id="ctxMarkRead">Mark as Read</div>
-                <div class="context-item" id="ctxPin">Pin to Top</div>
-                <div class="context-item danger" id="ctxDelete">Delete</div>
-                <div class="context-item cancel" id="ctxCancel">Cancel</div>
-            </div>
+            <div class="context-menu" id="contextMenu"></div>
         </div>
     </div>
 
@@ -211,7 +208,6 @@
             "AirtelAlert": { color: "bg-red", initial: "A" }
         };
 
-        // --- NEW: LINKIFY FUNCTION ---
         function linkify(text) {
             if (!text) return "";
             const urlRegex = /(https?:\/\/[^\s]+)/g;
@@ -220,7 +216,6 @@
             });
         }
 
-        // --- SMART TIME FORMATTERS ---
         function formatTime(ts) { return new Date(ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); }
         function formatDateDivider(ts) {
             const now = new Date();
@@ -247,7 +242,7 @@
         const daysAgo = (d) => Date.now() - d * 86400000;
         
         const defaultMessages = [
-            { id: 1, name: "MPESA", phone: "+254 722 000 000", color: "bg-green", initial: "M", timestamp: minsAgo(15), preview: "You have received Ksh 1,500 from JOHN DOE.", unread: 3, pinned: false, allowReply: false, isContactOnly: false, history: [{ text: "You have received Ksh 1,500 from JOHN DOE. New balance is 3,450.", type: "received", timestamp: minsAgo(15) }] },
+            { id: 1, name: "MPESA", phone: "+254 722 000 000", color: "bg-green", initial: "M", timestamp: minsAgo(15), preview: "UID6R63NWI Confirmed. Ksh 300.00 sent to MONICA WANGO 0700402321 on 16/9/26 at 9:12 AM . New M-PESA balance is 3,450. Transaction cost, Ksh 7.00. Amount you can transact within the day is 499,680.00. See all your balances now http://saf.cx/iqIzU", unread: 3, pinned: false, allowReply: false, isContactOnly: false, history: [{ text: "UID6R63NWI Confirmed. Ksh 300.00 sent to MONICA WANGO 0700402321 on 16/9/26 at 9:12 AM . New M-PESA balance is 3,450. Transaction cost, Ksh 7.00. Amount you can transact within the day is 499,680.00. See all your balances now http://saf.cx/iqIzU", type: "received", timestamp: minsAgo(15) }] },
             { id: 2, name: "Safaricom", phone: "+254 720 000 000", color: "bg-blue", initial: "S", timestamp: minsAgo(120), preview: "Your data balance is 2.5GB.", unread: 8, pinned: false, allowReply: false, isContactOnly: false, history: [{ text: "Your data balance is 2.5GB. Check usage here: https://saf.cx/kWQpy", type: "received", timestamp: minsAgo(120) }] },
             { id: 3, name: "Voice Mail", phone: "+254 711 000 000", color: "bg-purple", initial: "V", timestamp: daysAgo(1), preview: "You have 8 new voice messages.", unread: 8, pinned: false, allowReply: false, isContactOnly: false, history: [{ text: "You have 8 new voice messages. Call 111 to listen.", type: "received", timestamp: daysAgo(1) }] },
             { id: 4, name: "Airtel", phone: "+254 730 000 000", color: "bg-orange", initial: "A", timestamp: daysAgo(3), preview: "Your Airtel data balance is 1.2GB.", unread: 21, pinned: false, allowReply: false, isContactOnly: false, history: [{ text: "Your Airtel data balance is 1.2GB.", type: "received", timestamp: daysAgo(3) }] },
@@ -264,10 +259,10 @@
         function saveDeletedMessages() { localStorage.setItem('sms_app_deleted', JSON.stringify(deletedMessagesData)); }
         
         function loadMessages() {
-            if (localStorage.getItem('sms_app_v44') !== 'true') {
+            if (localStorage.getItem('sms_app_v45') !== 'true') {
                 localStorage.removeItem('sms_app_pro');
                 localStorage.removeItem('sms_app_deleted');
-                localStorage.setItem('sms_app_v44', 'true');
+                localStorage.setItem('sms_app_v45', 'true');
             }
             const saved = localStorage.getItem('sms_app_pro');
             const noReplyNames = Object.keys(providerData);
@@ -342,13 +337,64 @@
             });
         }
 
+        // --- DYNAMIC CONTEXT MENU LOGIC ---
         const contextMenuOverlay = document.getElementById('contextMenuOverlay');
-        document.getElementById('ctxCancel').addEventListener('click', () => contextMenuOverlay.classList.remove('active'));
+        const contextMenu = document.getElementById('contextMenu');
         contextMenuOverlay.addEventListener('click', (e) => { if(e.target === contextMenuOverlay) contextMenuOverlay.classList.remove('active'); });
-        document.getElementById('ctxMarkRead').addEventListener('click', () => { const msg = messagesData.find(m => m.id === contextMenuTargetId); msg.unread = msg.unread > 0 ? 0 : 1; saveMessages(); renderMessages(); contextMenuOverlay.classList.remove('active'); });
-        document.getElementById('ctxPin').addEventListener('click', () => { const msg = messagesData.find(m => m.id === contextMenuTargetId); msg.pinned = !msg.pinned; saveMessages(); renderMessages(); contextMenuOverlay.classList.remove('active'); });
-        document.getElementById('ctxDelete').addEventListener('click', () => { deletedMessagesData.unshift(messagesData.find(m => m.id === contextMenuTargetId)); messagesData = messagesData.filter(msg => msg.id !== contextMenuTargetId); saveMessages(); saveDeletedMessages(); renderMessages(); contextMenuOverlay.classList.remove('active'); });
 
+        function showListContextMenu(id) {
+            contextMenuTargetId = id;
+            const msg = messagesData.find(m => m.id === id);
+            contextMenu.innerHTML = `
+                <div class="context-item" id="ctxMarkRead">${msg.unread > 0 ? 'Mark as Read' : 'Mark as Unread'}</div>
+                <div class="context-item" id="ctxPin">${msg.pinned ? 'Unpin from Top' : 'Pin to Top'}</div>
+                <div class="context-item danger" id="ctxDelete">Delete</div>
+                <div class="context-item cancel" id="ctxCancel">Cancel</div>
+            `;
+            contextMenuOverlay.classList.add('active');
+            document.getElementById('ctxMarkRead').addEventListener('click', () => { msg.unread = msg.unread > 0 ? 0 : 1; saveMessages(); renderMessages(); contextMenuOverlay.classList.remove('active'); });
+            document.getElementById('ctxPin').addEventListener('click', () => { msg.pinned = !msg.pinned; saveMessages(); renderMessages(); contextMenuOverlay.classList.remove('active'); });
+            document.getElementById('ctxDelete').addEventListener('click', () => { deletedMessagesData.unshift(msg); messagesData = messagesData.filter(m => m.id !== id); saveMessages(); saveDeletedMessages(); renderMessages(); contextMenuOverlay.classList.remove('active'); });
+            document.getElementById('ctxCancel').addEventListener('click', () => contextMenuOverlay.classList.remove('active'));
+        }
+
+        function showBubbleContextMenu(chatId, msgTimestamp, text) {
+            contextMenu.innerHTML = `
+                <div class="context-item" id="ctxCopy">Copy Text</div>
+                <div class="context-item danger" id="ctxDeleteBubble">Delete Message</div>
+                <div class="context-item cancel" id="ctxCancel">Cancel</div>
+            `;
+            contextMenuOverlay.classList.add('active');
+            document.getElementById('ctxCopy').addEventListener('click', () => {
+                if (navigator.clipboard) {
+                    navigator.clipboard.writeText(text).then(() => alert("Copied to clipboard!"));
+                } else {
+                    const textarea = document.createElement('textarea'); textarea.value = text; document.body.appendChild(textarea); textarea.select(); document.execCommand('copy'); document.body.removeChild(textarea); alert("Copied!");
+                }
+                contextMenuOverlay.classList.remove('active');
+            });
+            document.getElementById('ctxDeleteBubble').addEventListener('click', () => {
+                const msg = messagesData.find(m => m.id === chatId);
+                if (!msg) return;
+                msg.history = msg.history.filter(h => h.timestamp !== msgTimestamp);
+                if (msg.history.length > 0) {
+                    const last = msg.history[msg.history.length - 1];
+                    msg.preview = last.text;
+                    msg.timestamp = last.timestamp;
+                } else {
+                    msg.preview = "Tap to start chatting...";
+                    msg.timestamp = Date.now();
+                    msg.isContactOnly = true;
+                }
+                saveMessages();
+                renderChatHistory(msg);
+                renderMessages();
+                contextMenuOverlay.classList.remove('active');
+            });
+            document.getElementById('ctxCancel').addEventListener('click', () => contextMenuOverlay.classList.remove('active'));
+        }
+
+        // --- COMPOSE ---
         document.getElementById('newMessageBtn').addEventListener('click', () => document.getElementById('composeModal').classList.add('active'));
         document.getElementById('composeCancel').addEventListener('click', () => document.getElementById('composeModal').classList.remove('active'));
         document.getElementById('composeSend').addEventListener('click', () => {
@@ -372,12 +418,14 @@
             document.getElementById('composeSender').value = ""; document.getElementById('composeText').value = "";
         });
 
+        // --- SEARCH ---
         const searchToggle = document.getElementById('searchToggle');
         const searchBar = document.getElementById('searchBar');
         const searchInput = document.getElementById('searchInput');
         searchToggle.addEventListener('click', () => searchBar.classList.toggle('active'));
         searchInput.addEventListener('input', (e) => { const val = e.target.value.toLowerCase(); const filtered = messagesData.filter(m => !m.isContactOnly && (m.name.toLowerCase().includes(val) || m.preview.toLowerCase().includes(val))); if(filtered.length === 0) { messagesList.innerHTML = `<div style="text-align:center; padding:40px; color:var(--text-secondary); font-size:13px;">No results</div>`; return; } messagesList.innerHTML = filtered.map(msg => { const av = msg.color === 'bg-personal' ? personIconSVG : msg.initial; return `<div class="message-item" onclick="openChat(${msg.id})" style="display:flex; padding:12px 16px; border-bottom:1px solid var(--border-color);"><div class="avatar ${msg.color}">${av}</div><div class="message-content"><div class="message-header"><div class="sender-name">${msg.name}</div><div class="timestamp">${formatListTime(msg.timestamp)}</div></div><div class="message-preview">${linkify(msg.preview)}</div></div></div>`; }).join(''); });
 
+        // --- CONTACTS ---
         function renderContacts() {
             const contactsList = document.getElementById('contactsList');
             let html = '';
@@ -392,6 +440,7 @@
             try { const contacts = await navigator.contacts.select(['name', 'tel'], { multiple: true }); if (contacts.length === 0) return; contacts.forEach(c => { const name = c.name ? c.name[0] : "Unknown"; const tel = c.tel ? c.tel[0] : "No Number"; let existing = messagesData.find(m => m.name === name && m.phone === tel); if (!existing) messagesData.unshift({ id: Date.now() + Math.random(), name, phone: tel, color: "bg-personal", initial: "", timestamp: Date.now(), preview: "Tap to start chatting...", unread: 0, pinned: false, allowReply: true, isContactOnly: true, history: [] }); }); saveMessages(); renderContacts(); } catch (err) {}
         }
 
+        // --- CHAT VIEW ---
         function openChat(id) {
             const msg = messagesData.find(m => m.id === id);
             activeChatId = id;
@@ -401,9 +450,13 @@
             document.getElementById('chatAvatar').className = `chat-avatar ${msg.color}`;
             document.getElementById('chatInputArea').style.display = (msg.allowReply === false) ? 'none' : 'flex';
             if(msg.unread > 0) { msg.unread = 0; saveMessages(); }
+            renderChatHistory(msg);
+            chatView.classList.add('active');
+        }
+
+        function renderChatHistory(msg) {
             const chatBody = document.getElementById('chatBody');
             chatBody.innerHTML = '';
-            
             if (msg.history.length === 0) {
                 const emptyDiv = document.createElement('div');
                 emptyDiv.className = 'chat-bubble received';
@@ -423,22 +476,48 @@
                     }
                     const bubble = document.createElement('div');
                     bubble.className = `chat-bubble ${h.type}`;
+                    bubble.setAttribute('data-timestamp', h.timestamp);
                     bubble.innerHTML = `${linkify(h.text)}<div class="chat-meta"><span>${formatTime(h.timestamp)}</span>${h.type === 'sent' ? ' ✓✓' : ''}</div>`;
                     chatBody.appendChild(bubble);
+
+                    // --- BUBBLE LONG PRESS LOGIC ---
+                    let bubblePressTimer = null;
+                    const startBubblePress = () => {
+                        bubblePressTimer = setTimeout(() => {
+                            if (navigator.vibrate) navigator.vibrate(15);
+                            showBubbleContextMenu(msg.id, h.timestamp, h.text);
+                        }, 500);
+                    };
+                    const cancelBubblePress = () => clearTimeout(bubblePressTimer);
+                    bubble.addEventListener('touchstart', startBubblePress, {passive: true});
+                    bubble.addEventListener('touchend', cancelBubblePress);
+                    bubble.addEventListener('touchmove', cancelBubblePress, {passive: true});
+                    bubble.addEventListener('mousedown', startBubblePress);
+                    bubble.addEventListener('mouseup', cancelBubblePress);
+                    bubble.addEventListener('mouseleave', cancelBubblePress);
+                    bubble.addEventListener('contextmenu', (e) => { e.preventDefault(); showBubbleContextMenu(msg.id, h.timestamp, h.text); });
                 });
             }
-            chatView.classList.add('active');
             requestAnimationFrame(() => { chatBody.scrollTop = chatBody.scrollHeight; });
         }
 
         function deleteCurrentChat() {
             if (activeChatId === null) return;
+            contextMenu.innerHTML = `<div class="context-item danger" id="ctxConfirmDelChat">Delete Conversation</div><div class="context-item cancel" id="ctxCancelDelChat">Cancel</div>`;
             contextMenuOverlay.classList.add('active');
-            document.getElementById('contextMenu').innerHTML = `<div class="context-item danger" onclick="confirmDeleteChat()">Delete Conversation</div><div class="context-item cancel" onclick="cancelDeleteChat()">Cancel</div>`;
+            document.getElementById('ctxConfirmDelChat').addEventListener('click', () => {
+                deletedMessagesData.unshift(messagesData.find(m => m.id === activeChatId));
+                messagesData = messagesData.filter(m => m.id !== activeChatId);
+                saveMessages(); saveDeletedMessages();
+                chatView.classList.remove('active'); activeChatId = null;
+                renderMessages(); renderContacts();
+                contextMenuOverlay.classList.remove('active');
+                if (navigator.vibrate) navigator.vibrate(20);
+            });
+            document.getElementById('ctxCancelDelChat').addEventListener('click', () => contextMenuOverlay.classList.remove('active'));
         }
-        function cancelDeleteChat() { contextMenuOverlay.classList.remove('active'); document.getElementById('contextMenu').innerHTML = `<div class="context-item" id="ctxMarkRead">Mark as Read</div><div class="context-item" id="ctxPin">Pin to Top</div><div class="context-item danger" id="ctxDelete">Delete</div><div class="context-item cancel" id="ctxCancel">Cancel</div>`; document.getElementById('ctxCancel').addEventListener('click', () => contextMenuOverlay.classList.remove('active')); }
-        function confirmDeleteChat() { contextMenuOverlay.classList.remove('active'); deletedMessagesData.unshift(messagesData.find(m => m.id === activeChatId)); messagesData = messagesData.filter(msg => msg.id !== activeChatId); saveMessages(); chatView.classList.remove('active'); activeChatId = null; renderMessages(); renderContacts(); if (navigator.vibrate) navigator.vibrate(20); }
 
+        // --- SEND MESSAGE ---
         document.getElementById('sendBtn').addEventListener('click', () => {
             const input = document.getElementById('messageInput');
             const text = input.value.trim();
