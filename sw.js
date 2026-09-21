@@ -1,10 +1,11 @@
-const CACHE_NAME = 'sms-font-v47';
+const CACHE_NAME = 'sms-font-v48'; 
 const urlsToCache = [
   './',
   './index.html',
   './manifest.json',
-  'https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap',
-  'https://fonts.gstatic.com/s/quicksand/v30/6xKtdSZaM9iE8KbpRA_LJ3z8mH9BOJvgkMV0mLtfZw.woff2'
+  './true_logo.png', 
+  'https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap',
+  'https://fonts.gstatic.com/s/roboto/v30/KFOmCnqEu92Fr1Mu4mxKKTU1Kg.woff2'
 ];
 
 self.addEventListener('install', e => {
